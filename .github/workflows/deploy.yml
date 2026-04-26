@@ -1,0 +1,30 @@
+name: Vercel Develop Deployment
+
+# develop 브랜치에 코드가 push(또는 Merge) 될 때만 실행
+on:
+  push:
+    branches:
+      - develop
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  Deploy-to-Vercel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 코드 가져오기
+        uses: actions/checkout@v3
+
+      - name: Vercel 도구 설치하기
+        run: npm install --global vercel@latest
+
+      - name: Vercel 환경 설정 가져오기
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: 프로젝트 빌드하기
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Vercel에 배포하기
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
