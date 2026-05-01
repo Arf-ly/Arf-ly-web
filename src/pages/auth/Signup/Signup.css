@@ -1,0 +1,219 @@
+/* 회원가입 */
+.SignupWrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: var(--background);
+  position: relative;
+}
+
+/* 뒤로가기 */
+.BackBtn {
+  margin-top: 50px;
+}
+
+.BackBtn button {
+  border: none;
+  background: none;
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  cursor: pointer;
+}
+
+/* 회원가입 글 */
+.SignupText {
+  padding: 10px 30px 40px 30px;
+}
+
+.SignupText h2 {
+  font-size: 26px;
+  font-weight: bold;
+  margin: 0;
+  line-height: 1.4;
+  color: #000;
+}
+
+/* 입력 */
+.SignupInputForm {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  padding: 0 30px;
+  padding-bottom: 120px;
+}
+
+.InputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.InputContainer {
+  display: flex;
+  align-items: center;
+  background-color: #ffffff;
+  border-radius: 30px;
+  padding: 15px 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.InputContainer:focus-within {
+  border: 1px solid var(--secondary-700);
+}
+
+.InputContainer.errorBorder,
+.InputContainer.errorBorder:focus-within {
+  border: 1px solid var(--primary-500);
+}
+
+.InputContainer img {
+  width: 30px;
+  height: 30px;
+  opacity: 0.5;
+}
+
+.InputContainer input {
+  flex: 1;
+  border: none;
+  background: none;
+  outline: none;
+  margin-left: 15px;
+  font-size: 20px;
+  color: var(--common-black);
+}
+
+.InputContainer input::placeholder {
+  color: var(--gray-neutral-400);
+}
+
+/* 비밀번호 가리기/보이기 버튼 */
+.toggleBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.toggleBtn img {
+  width: 24px;
+  height: 24px;
+  opacity: 1;
+}
+
+/* 상태 메시지 */
+.DefaultMessage,
+.StatusMessage {
+  font-size: 13px;
+  padding-left: 15px;
+  letter-spacing: -0.3px;
+}
+
+.DefaultMessage {
+  color: var(--gray-neutral-500);
+}
+
+.errorText {
+  color: var(--primary-500);
+}
+
+.successText {
+  color: #0084ff;
+}
+
+/* 다음 버튼 */
+.summitSignup {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+.summitSignup button {
+  width: 100%;
+  height: 80px;
+  background-color: var(--gray-warm-300);
+  color: var(--common-white);
+  font-size: 18px;
+  font-weight: bold;
+  border: none;
+  cursor: default;
+  padding-bottom: 20px;
+}
+
+.summitSignup button:not(:disabled) {
+  background-color: var(--secondary-700);
+  cursor: pointer;
+}
+
+@media (max-width: 400px) {
+  .SignupText h2 {
+    font-size: 22px;
+  }
+
+  .InputContainer input {
+    font-size: 16px;
+  }
+
+  .DefaultMessage,
+  .StatusMessage {
+    font-size: 12px;
+  }
+}
+
+/* 전화번호 인증*/
+.phoneInputContainer,
+.codeInputContainer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.phoneInput,
+.codeInput {
+  width: 100%;
+  margin-left: 0 !important;
+}
+
+.phoneSendBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.rowGroup {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 15px;
+}
+
+.codeInputContainer {
+  flex: 1;
+}
+
+.resendBtn {
+  background-color: var(--primary-400);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 15px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 100px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (max-width: 400px) {
+  .resendBtn {
+    padding: 12px 10px;
+    font-size: 14px;
+    width: 80px;
+  }
+}
