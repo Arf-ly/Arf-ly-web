@@ -328,6 +328,19 @@
   display: none;
 }
 
+.camera-wrapper[data-capture-enabled="false"] .camera-bottom {
+  grid-template-columns: 1fr;
+}
+
+.camera-wrapper[data-capture-enabled="false"] .camera-gallery-button,
+.camera-wrapper[data-capture-enabled="false"] .camera-start-button {
+  grid-column: 1;
+}
+
+.camera-wrapper[data-capture-enabled="false"] .camera-start-button {
+  max-width: none;
+}
+
 @media (max-height: 720px) {
   .camera-frame {
     top: 120px;

@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import BottomTabBar from "../../components/BottomTabBar.jsx";
+import PhotoSourceSheet from "../../components/PhotoSourceSheet.jsx";
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
@@ -20,8 +21,6 @@ import HOMEPREVIOUS500 from "../../assets/home/home_previous_500.svg";
 import HOMENEXT200 from "../../assets/home/home_next_200.svg";
 import HOMENEXT500 from "../../assets/home/home_next_500.svg";
 import HOMENEXTBROWN from "../../assets/home/home_next_brown.svg";
-import HOMECAMERA from "../../assets/home/home_camera.svg";
-import HOMEGET from "../../assets/home/home_get.svg";
 import HOMEDOG from "../../assets/home/home_dog.svg";
 import HOMECAT from "../../assets/home/home_cat.svg";
 
@@ -219,10 +218,6 @@ export default function Home() {
   const [isDiagnosisPetSheetOpen, setIsDiagnosisPetSheetOpen] = useState(false);
   const [selectedDiagnosisPet, setSelectedDiagnosisPet] = useState(null);
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
-  const isMobileDevice = () => {
-    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  };
-  const isMobile = isMobileDevice();
   const handleImportClick = () => {
     fileInputRef.current?.click();
   };
@@ -783,36 +778,13 @@ export default function Home() {
         </div>
       )}
       {isPhotoModalOpen && (
-        <div
-          className="home-photo-overlay"
-          onClick={() => setIsPhotoModalOpen(false)}
-        >
-          <div
-            className="home-photo-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {isMobile && (
-              <button
-                type="button"
-                onClick={() => {
-                  navigate("/camera", {
-                    state: {
-                      pet: selectedDiagnosisPet,
-                    },
-                  });
-                }}
-              >
-                <img src={HOMECAMERA} />
-                사진 찍기
-              </button>
-            )}
-
-            <button type="button" onClick={handleImportClick}>
-              <img src={HOMEGET} />
-              가져오기
-            </button>
-          </div>
-        </div>
+        <PhotoSourceSheet
+          onClose={() => setIsPhotoModalOpen(false)}
+          onCapture={() =>
+            navigate("/camera", { state: { pet: selectedDiagnosisPet } })
+          }
+          onImport={handleImportClick}
+        />
       )}
       <input
         ref={fileInputRef}
