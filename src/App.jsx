@@ -4,7 +4,7 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import Home from "./pages/home/Home";
 import WeeklyActive from "./pages/home/WeeklyActive";
 import WalkedResult from "./pages/home/WalkedResult";
-import Camera from "./pages/home/Camera.jsx";
+import DiagnosisCamera from "./pages/home/DiagnosisCamera.jsx";
 import DiseaseCheck from "./pages/home/DiseaseCheck.jsx";
 
 import Login from "./pages/auth/Login/Login";
@@ -25,6 +25,7 @@ import PetDetail from "./pages/mypage/PetDetail.jsx";
 import UserProfile from "./pages/mypage/UserProfile.jsx";
 import MedicineAlarm from "./pages/mypage/MedicineAlarm.jsx";
 import AlarmNotification from "./pages/mypage/AlarmNotification.jsx";
+import DoctorVerificationCamera from "./pages/mypage/DoctorVerificationCamera.jsx";
 
 import MapPage from "./pages/map/MapPage";
 import PetRegister from "./pages/pet/PetRegister";
@@ -145,7 +146,11 @@ function App() {
         element={protectedElement(<WalkedResult />)}
       />
       {/* 카메라 관련 */}
-      <Route path="/camera" element={protectedElement(<Camera />)} />
+      <Route path="/camera" element={protectedElement(<DiagnosisCamera />)} />
+      <Route
+        path="/doctor-verification/camera"
+        element={protectedElement(<DoctorVerificationCamera />)}
+      />
       <Route
         path="/diseasecheck"
         element={protectedElement(<DiseaseCheck />)}
