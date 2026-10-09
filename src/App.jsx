@@ -12,6 +12,7 @@ import SystemLogin from "./pages/auth/Login/SystemLogin";
 import Signup from "./pages/auth/Signup/Signup";
 import Find from "./pages/auth/Find/Find";
 import Terms from "./pages/auth/Signup/Terms";
+import { refreshAccessToken } from "./pages/auth/AuthApi";
 
 import Community from "./pages/community/Community";
 import CommunityWrite from "./pages/community/CommunityWrite";
@@ -92,6 +93,12 @@ function ProtectedRoute({ children }) {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        if (typeof data.accessToken !== "string" || !data.accessToken.trim()) {
+          throw new Error("약관 동의 응답에 accessToken이 없습니다.");
+        }
+
+        localStorage.setItem("accessToken", data.accessToken);
         setShowTerms(false);
         return;
       }
@@ -126,6 +133,37 @@ const protectedElement = (element) => (
 );
 
 function App() {
+  useLocation();
+  const refreshToken = localStorage.getItem("refreshToken");
+  const hasAccessToken = Boolean(localStorage.getItem("accessToken"));
+
+  useEffect(() => {
+    if (!hasAccessToken || !refreshToken) return;
+
+    let isRefreshing = false;
+    const timer = setInterval(
+      () => {
+        if (
+          isRefreshing ||
+          !localStorage.getItem("accessToken") ||
+          localStorage.getItem("refreshToken") !== refreshToken
+        ) {
+          return;
+        }
+
+        isRefreshing = true;
+        refreshAccessToken()
+          .catch((error) => console.error("액세스 토큰 재발급 실패:", error))
+          .finally(() => {
+            isRefreshing = false;
+          });
+      },
+      30 * 60 * 1000,
+    );
+
+    return () => clearInterval(timer);
+  }, [hasAccessToken, refreshToken]);
+
   return (
     <Routes>
       {/* 로그인 관련 */}
