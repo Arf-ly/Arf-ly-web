@@ -31,6 +31,8 @@ import DoctorVerificationCamera from "./pages/mypage/DoctorVerificationCamera.js
 import MapPage from "./pages/map/MapPage";
 import PetRegister from "./pages/pet/PetRegister";
 
+import Admin from "./pages/admin/Admin.jsx";
+
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
 const termsMapping = {
@@ -227,6 +229,8 @@ function App() {
       />
       {/* 지도 관련 */}
       <Route path="/map" element={protectedElement(<MapPage />)} />
+      {/* 관리자 관련 */}
+      <Route path="/admin" element={protectedElement(<Admin />)} />
     </Routes>
   );
 }
