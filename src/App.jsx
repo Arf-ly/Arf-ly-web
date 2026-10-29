@@ -19,6 +19,7 @@ import CommunityWrite from "./pages/community/CommunityWrite";
 import CommunitySearch from "./pages/community/CommunitySearch";
 import CommunityDetail from "./pages/community/CommunityDetail";
 import CommunityEdit from "./pages/community/CommunityEdit";
+import CommunityReport from "./pages/community/CommunityReport";
 
 import MyPage from "./pages/mypage/MyPage";
 import IoTRegister from "./pages/mypage/IotRegisteration/IoTRegister.jsx";
@@ -212,6 +213,10 @@ function App() {
       <Route
         path="/community/:postId/edit"
         element={protectedElement(<CommunityEdit />)}
+      />
+      <Route
+        path="/community/:postId/report"
+        element={protectedElement(<CommunityReport />)}
       />
       {/* 마이페이지 관련 */}
       <Route path="/mypage" element={protectedElement(<MyPage />)} />
