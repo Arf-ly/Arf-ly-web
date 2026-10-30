@@ -1,8 +1,11 @@
+import { getDeviceType } from "../../utils/device.js";
+
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
 export const sendFcmToken = async (
   fcmToken,
   accessToken = localStorage.getItem("accessToken"),
+  { signal } = {},
 ) => {
   if (!accessToken) {
     throw new Error("로그인 후 알림을 설정해주세요.");
@@ -20,11 +23,12 @@ export const sendFcmToken = async (
     `${API_BASE_URL.replace(/\/$/, "")}/notification/token`,
     {
       method: "POST",
+      signal,
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ fcmToken, deviceType: "DESKTOP" }),
+      body: JSON.stringify({ fcmToken, deviceType: getDeviceType() }),
     },
   );
 
