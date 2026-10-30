@@ -10,4 +10,17 @@ export const isMobileDevice = () => {
   );
 };
 
-export const getDeviceType = () => (isMobileDevice() ? "MOBILE" : "DESKTOP");
+export const getDeviceType = () => {
+  if (typeof navigator === "undefined") return "DESKTOP";
+
+  const userAgent = navigator.userAgent || "";
+  if (
+    /iPhone|iPad|iPod/i.test(userAgent) ||
+    (/Macintosh/i.test(userAgent) && navigator.maxTouchPoints > 1)
+  ) {
+    return "IOS";
+  }
+  if (/Android/i.test(userAgent)) return "ANDROID";
+
+  return "DESKTOP";
+};
