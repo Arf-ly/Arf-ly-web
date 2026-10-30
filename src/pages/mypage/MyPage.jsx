@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import MYPAGELOGO from "../../assets/home/home_logo.svg";
@@ -15,9 +15,12 @@ import MYPAGEFEMALE from "../../assets/home/home_female.svg";
 import HOMEDOG from "../../assets/home/home_dog.svg";
 import HOMECAT from "../../assets/home/home_cat.svg";
 import MYPAGEPILL from "../../assets/mypage/mypage_pill.svg";
+import CERTIFICATION from "../../assets/mypage/mypage_doctor_certification.svg";
+import VERIFICATION from "../../assets/mypage/mypage_doctor_verficiation.svg";
 
 import "./MyPage.css";
 import BottomTabBar from "../../components/BottomTabBar.jsx";
+import PhotoSourceSheet from "../../components/PhotoSourceSheet.jsx";
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
@@ -92,12 +95,35 @@ const normalizePet = (summary, detail = {}) => {
 
 export default function MyPage() {
   const navigate = useNavigate();
+  const doctorFileInputRef = useRef(null);
+  const [isDoctorPhotoSheetOpen, setIsDoctorPhotoSheetOpen] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [petList, setPetList] = useState([]);
   const [medicineAlarms, setMedicineAlarms] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const handleDoctorPhotoImport = (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    if (!["image/png", "image/jpeg"].includes(file.type)) {
+      alert("PNG 또는 JPEG 형식의 사진만 가져올 수 있습니다.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setIsDoctorPhotoSheetOpen(false);
+      navigate("/doctor-verification/camera", {
+        state: { image: reader.result },
+      });
+    };
+    reader.onerror = () => alert("사진을 불러오지 못했습니다. 다시 선택해주세요.");
+    reader.readAsDataURL(file);
+  };
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
@@ -229,6 +255,13 @@ export default function MyPage() {
         <div className="mypage-user-info-detail">
           <div className="mypage-user-info-detail-nickname">
             <span>{userInfo.nickname} </span>
+            {userInfo.doctor === true && (
+              <img
+                className="mypage-doctor-verification"
+                src={VERIFICATION}
+                alt="의사 인증 완료"
+              />
+            )}
             <span>님</span>
             <img
               src={MYPAGENEXTARROW}
@@ -367,6 +400,10 @@ export default function MyPage() {
           <img src={MYPAGESERVICE} />
           <span>고객센터</span>
         </div>
+        <div onClick={() => setIsDoctorPhotoSheetOpen(true)}>
+          <img src={CERTIFICATION} />
+          <span>의사 인증</span>
+        </div>
       </div>
       <div className="mypage-bottom">
         <span onClick={handleLogout}>
@@ -374,6 +411,23 @@ export default function MyPage() {
         </span>
         <span>회원탈퇴</span>
       </div>
+      {isDoctorPhotoSheetOpen && (
+        <PhotoSourceSheet
+          onClose={() => setIsDoctorPhotoSheetOpen(false)}
+          onCapture={() => {
+            setIsDoctorPhotoSheetOpen(false);
+            navigate("/doctor-verification/camera");
+          }}
+          onImport={() => doctorFileInputRef.current?.click()}
+        />
+      )}
+      <input
+        ref={doctorFileInputRef}
+        type="file"
+        accept="image/png,image/jpeg"
+        hidden
+        onChange={handleDoctorPhotoImport}
+      />
       <BottomTabBar></BottomTabBar>
     </div>
   );

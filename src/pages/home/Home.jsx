@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import BottomTabBar from "../../components/BottomTabBar.jsx";
+import PhotoSourceSheet from "../../components/PhotoSourceSheet.jsx";
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
@@ -20,14 +21,29 @@ import HOMEPREVIOUS500 from "../../assets/home/home_previous_500.svg";
 import HOMENEXT200 from "../../assets/home/home_next_200.svg";
 import HOMENEXT500 from "../../assets/home/home_next_500.svg";
 import HOMENEXTBROWN from "../../assets/home/home_next_brown.svg";
-import HOMECAMERA from "../../assets/home/home_camera.svg";
-import HOMEGET from "../../assets/home/home_get.svg";
 import HOMEDOG from "../../assets/home/home_dog.svg";
 import HOMECAT from "../../assets/home/home_cat.svg";
+import HOMEADMIN from "../../assets/home/home_admin_button.svg";
 
 const weekLabels = ["M", "T", "W", "T", "F", "S", "S"];
 const weekKeys = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 const dayKeyByDateIndex = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
+const getRoleFromToken = (token) => {
+  try {
+    const parts = token?.split(".");
+    if (parts?.length !== 3) return null;
+
+    const base64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+    const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+    const bytes = Uint8Array.from(atob(padded), (char) => char.charCodeAt(0));
+    const payload = JSON.parse(new TextDecoder().decode(bytes));
+
+    return payload.role ?? null;
+  } catch {
+    return null;
+  }
+};
 
 const formatDateForQuery = (date) => {
   const year = date.getFullYear();
@@ -219,10 +235,6 @@ export default function Home() {
   const [isDiagnosisPetSheetOpen, setIsDiagnosisPetSheetOpen] = useState(false);
   const [selectedDiagnosisPet, setSelectedDiagnosisPet] = useState(null);
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
-  const isMobileDevice = () => {
-    return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  };
-  const isMobile = isMobileDevice();
   const handleImportClick = () => {
     fileInputRef.current?.click();
   };
@@ -358,13 +370,45 @@ export default function Home() {
     fetchHomeData();
   }, []);
 
+  const accessToken = localStorage.getItem("accessToken");
+  const isAdmin = getRoleFromToken(accessToken) === "ADMIN";
+  const homeTop = (
+    <div className="home-top">
+      <img src={HOMELOGO} alt="ARFLY" />
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        {isAdmin && (
+          <button
+            type="button"
+            aria-label="관리자"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+              border: 0,
+              background: "transparent",
+              cursor: "pointer",
+            }}
+            onClick={() =>
+              navigate('/admin')
+            }
+          >
+            <img
+              src={HOMEADMIN}
+              alt=""
+              style={{ display: "block", width: 59, height: 24 }}
+            />
+          </button>
+        )}
+        <img src={HOMEBELL} alt="알림" />
+      </div>
+    </div>
+  );
+
   if (isHomeLoading) {
     return (
       <div className="home-wrapper">
-        <div className="home-top">
-          <img src={HOMELOGO} alt="ARFLY" />
-          <img src={HOMEBELL} alt="" />
-        </div>
+        {homeTop}
         <div className="home-loading-overlay">
           <div className="home-loading-spinner" />
         </div>
@@ -376,10 +420,7 @@ export default function Home() {
   if (homeError) {
     return (
       <div className="home-wrapper">
-        <div className="home-top">
-          <img src={HOMELOGO} alt="ARFLY" />
-          <img src={HOMEBELL} alt="" />
-        </div>
+        {homeTop}
         <div className="home-empty-state">{homeError}</div>
         <BottomTabBar />
       </div>
@@ -388,10 +429,7 @@ export default function Home() {
 
   return (
     <div className="home-wrapper">
-      <div className="home-top">
-        <img src={HOMELOGO} />
-        <img src={HOMEBELL} />
-      </div>
+      {homeTop}
       <div className="home-middle">
         {currentPet && (
           <div className="home-pet-profile">
@@ -755,7 +793,7 @@ export default function Home() {
                 onClick={() => {
                   setSelectedDiagnosisPet(null);
                   setIsDiagnosisPetSheetOpen(false);
-                  navigate("/pet/register", { state: { entry: "mypage-add" } })
+                  navigate("/pet/register", { state: { entry: "mypage-add" } });
                 }}
               >
                 <span>+</span>
@@ -783,36 +821,13 @@ export default function Home() {
         </div>
       )}
       {isPhotoModalOpen && (
-        <div
-          className="home-photo-overlay"
-          onClick={() => setIsPhotoModalOpen(false)}
-        >
-          <div
-            className="home-photo-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {isMobile && (
-              <button
-                type="button"
-                onClick={() => {
-                  navigate("/camera", {
-                    state: {
-                      pet: selectedDiagnosisPet,
-                    },
-                  });
-                }}
-              >
-                <img src={HOMECAMERA} />
-                사진 찍기
-              </button>
-            )}
-
-            <button type="button" onClick={handleImportClick}>
-              <img src={HOMEGET} />
-              가져오기
-            </button>
-          </div>
-        </div>
+        <PhotoSourceSheet
+          onClose={() => setIsPhotoModalOpen(false)}
+          onCapture={() =>
+            navigate("/camera", { state: { pet: selectedDiagnosisPet } })
+          }
+          onImport={handleImportClick}
+        />
       )}
       <input
         ref={fileInputRef}

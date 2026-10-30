@@ -156,4 +156,13 @@ export const updatePost = async ({
 	return response.data;
 };
 
+export const submitCommunityReport = async ({ postId, detail }) => {
+	const response = await api.post(`/api/posts/${postId}/reports`, {
+		reason: "ETC",
+		detail,
+	});
+
+	return response.data;
+};
+
 export default api;

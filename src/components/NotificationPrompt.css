@@ -1,0 +1,67 @@
+.notification-prompt {
+  width: min(360px, calc(100% - 40px));
+  box-sizing: border-box;
+  padding: 28px 24px 24px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--common-white);
+  color: var(--gray-warm-900);
+  font-family: "Pretendard", sans-serif;
+}
+
+.notification-prompt::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.notification-prompt h2 {
+  margin: 0 0 12px;
+  font-size: 21px;
+  font-weight: 600;
+}
+
+.notification-prompt p {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+.notification-prompt .notification-prompt-error {
+  margin-top: 16px;
+  color: #a3293b;
+}
+
+.notification-prompt-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.notification-prompt-actions button {
+  flex: 1;
+  min-height: 46px;
+  padding: 10px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--gray-warm-100);
+  color: var(--gray-warm-700);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.notification-prompt-actions .notification-prompt-confirm {
+  background: var(--primary-100);
+  color: var(--primary-900);
+}
+
+.notification-prompt-actions button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.notification-prompt-actions button:focus-visible {
+  outline: 2px solid var(--primary-800);
+  outline-offset: 3px;
+}
