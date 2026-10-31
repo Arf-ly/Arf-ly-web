@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-function AdminModal({ modalType, modalTitle, modalDescription, modalButtonText, isDanger = false, isActionSubmitting = false, handleModalClose, handleConfirmClick }) {
+function AdminModal({ modalType, modalTitle, modalDescription, modalButtonText, isDanger = false, isActionSubmitting = false, isConfirmDisabled = false, handleModalClose, handleConfirmClick, children }) {
 	const modalRef = useRef(null);
 
 	useEffect(() => {
@@ -28,6 +28,7 @@ function AdminModal({ modalType, modalTitle, modalDescription, modalButtonText, 
 		>
 			<h2 id="admin-modal-title">{modalTitle}</h2>
 			<p id="admin-modal-description">{modalDescription}</p>
+			{children}
 			<div className="admin_modal_actions">
 				<button
 					className="admin_outline_button"
@@ -41,7 +42,7 @@ function AdminModal({ modalType, modalTitle, modalDescription, modalButtonText, 
 					className={isDanger ? "admin_danger_button" : "admin_primary_button"}
 					type="button"
 					onClick={handleConfirmClick}
-					disabled={isActionSubmitting}
+					disabled={isActionSubmitting || isConfirmDisabled}
 				>
 					{isActionSubmitting ? "처리 중..." : modalButtonText}
 				</button>

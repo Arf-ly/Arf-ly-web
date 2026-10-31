@@ -400,7 +400,7 @@ function AdminReports({ actionSubmittingRef, isActionSubmitting, setIsActionSubm
 					<>
 						<div className="admin_report_actions">
 							<button
-								className="admin_outline_button"
+								className="admin_primary_button"
 								type="button"
 								onClick={() => handleModalOpen("reject-report")}
 								disabled={isActionSubmitting}

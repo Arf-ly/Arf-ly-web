@@ -38,7 +38,7 @@
 }
 
 .admin_task_button strong {
-	color: var(--primary-900);
+	color: var(--primary-500);
 	font-size: 13px;
 	font-weight: 600;
 	line-height: 1.5;

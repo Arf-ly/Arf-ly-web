@@ -63,4 +63,26 @@ export const deleteAdminPost = async (postId) => {
 	return response.data;
 };
 
+export const getVerificationList = async () => {
+	const response = await api.get("/api/admin/verifications");
+	return response.data;
+};
+
+export const getVerificationDetail = async (verificationId) => {
+	const response = await api.get(`/api/admin/verifications/${verificationId}`);
+	return response.data;
+};
+
+export const approveVerification = async (verificationId) => {
+	const response = await api.patch(`/api/admin/verifications/${verificationId}/approve`);
+	return response.data;
+};
+
+export const rejectVerification = async ({ verificationId, reason }) => {
+	const response = await api.patch(`/api/admin/verifications/${verificationId}/reject`, {
+		reason,
+	});
+	return response.data;
+};
+
 export default api;

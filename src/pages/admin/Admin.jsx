@@ -24,12 +24,15 @@ function Admin() {
 	const [activeTab, setActiveTab] = useState("dashboard");
 	const [tabKey, setTabKey] = useState(0);
 	const [isActionSubmitting, setIsActionSubmitting] = useState(false);
+	const [selectedVerificationId, setSelectedVerificationId] = useState(null);
+	const isVerificationDetailOpen = activeTab === "verifications" && selectedVerificationId !== null;
 
 	const handleTabClick = (tab) => {
 		if (actionSubmittingRef.current) {
 			return;
 		}
 
+		setSelectedVerificationId(null);
 		setActiveTab(tab);
 		setTabKey((key) => key + 1);
 	};
@@ -43,7 +46,7 @@ function Admin() {
 	};
 
 	return (
-		<div className="admin_page">
+		<div className={`admin_page ${isVerificationDetailOpen ? "admin_verification_detail" : ""}`}>
 			<header className="admin_header">
 				<button
 					className="admin_logo_button"
@@ -81,7 +84,14 @@ function Admin() {
 				/>
 			)}
 			{activeTab === "verifications" && (
-				<AdminVerification key={tabKey} />
+				<AdminVerification
+					key={tabKey}
+					selectedVerificationId={selectedVerificationId}
+					setSelectedVerificationId={setSelectedVerificationId}
+					actionSubmittingRef={actionSubmittingRef}
+					isActionSubmitting={isActionSubmitting}
+					setIsActionSubmitting={setIsActionSubmitting}
+				/>
 			)}
 			{activeTab === "reports" && (
 				<AdminReports
@@ -99,56 +109,58 @@ function Admin() {
 					setIsActionSubmitting={setIsActionSubmitting}
 				/>
 			)}
-			<nav className="bottom_tab_bar" aria-label="관리자 메뉴">
-				<button
-					className={`bottom_tab_item ${activeTab === "dashboard" ? "active" : ""}`}
-					type="button"
-					disabled={isActionSubmitting}
-					onClick={() => handleTabClick("dashboard")}
-					aria-current={activeTab === "dashboard" ? "page" : undefined}
-				>
-					<img className="tab_icon" src={activeTab === "dashboard" ? HomeActiveIcon : HomeIcon} alt="" />
-					<span className="tab_label">대시보드</span>
-				</button>
-				<button
-					className={`bottom_tab_item ${activeTab === "verifications" ? "active" : ""}`}
-					type="button"
-					disabled={isActionSubmitting}
-					onClick={() => handleTabClick("verifications")}
-					aria-current={activeTab === "verifications" ? "page" : undefined}
-				>
-					<img
-						className="tab_icon"
-						src={activeTab === "verifications" ? CheckActiveIcon : CheckIcon}
-						alt=""
-					/>
-					<span className="tab_label">의사 인증</span>
-				</button>
-				<button
-					className={`bottom_tab_item ${activeTab === "reports" ? "active" : ""}`}
-					type="button"
-					disabled={isActionSubmitting}
-					onClick={() => handleTabClick("reports")}
-					aria-current={activeTab === "reports" ? "page" : undefined}
-				>
-					<img className="tab_icon" src={ReportIcon} alt="" />
-					<span className="tab_label">신고 관리</span>
-				</button>
-				<button
-					className={`bottom_tab_item ${activeTab === "members" ? "active" : ""}`}
-					type="button"
-					disabled={isActionSubmitting}
-					onClick={() => handleTabClick("members")}
-					aria-current={activeTab === "members" ? "page" : undefined}
-				>
-					<img
-						className="tab_icon"
-						src={activeTab === "members" ? MemberActiveIcon : MemberIcon}
-						alt=""
-					/>
-					<span className="tab_label">회원 관리</span>
-				</button>
-			</nav>
+			{!isVerificationDetailOpen && (
+				<nav className="bottom_tab_bar" aria-label="관리자 메뉴">
+					<button
+						className={`bottom_tab_item ${activeTab === "dashboard" ? "active" : ""}`}
+						type="button"
+						disabled={isActionSubmitting}
+						onClick={() => handleTabClick("dashboard")}
+						aria-current={activeTab === "dashboard" ? "page" : undefined}
+					>
+						<img className="tab_icon" src={activeTab === "dashboard" ? HomeActiveIcon : HomeIcon} alt="" />
+						<span className="tab_label">대시보드</span>
+					</button>
+					<button
+						className={`bottom_tab_item ${activeTab === "verifications" ? "active" : ""}`}
+						type="button"
+						disabled={isActionSubmitting}
+						onClick={() => handleTabClick("verifications")}
+						aria-current={activeTab === "verifications" ? "page" : undefined}
+					>
+						<img
+							className="tab_icon"
+							src={activeTab === "verifications" ? CheckActiveIcon : CheckIcon}
+							alt=""
+						/>
+						<span className="tab_label">의사 인증</span>
+					</button>
+					<button
+						className={`bottom_tab_item ${activeTab === "reports" ? "active" : ""}`}
+						type="button"
+						disabled={isActionSubmitting}
+						onClick={() => handleTabClick("reports")}
+						aria-current={activeTab === "reports" ? "page" : undefined}
+					>
+						<img className="tab_icon" src={ReportIcon} alt="" />
+						<span className="tab_label">신고 관리</span>
+					</button>
+					<button
+						className={`bottom_tab_item ${activeTab === "members" ? "active" : ""}`}
+						type="button"
+						disabled={isActionSubmitting}
+						onClick={() => handleTabClick("members")}
+						aria-current={activeTab === "members" ? "page" : undefined}
+					>
+						<img
+							className="tab_icon"
+							src={activeTab === "members" ? MemberActiveIcon : MemberIcon}
+							alt=""
+						/>
+						<span className="tab_label">회원 관리</span>
+					</button>
+				</nav>
+			)}
 		</div>
 	);
 }
