@@ -548,9 +548,9 @@
 }
 
 .admin_detail_actions .admin_danger_button:not(:disabled) {
-	border-color: var(--primary-100);
-	background-color: var(--primary-50);
-	color: var(--primary-500);
+	border-color: transparent;
+	background-color: var(--primary-500);
+	color: var(--common-white);
 }
 
 .admin_modal {
