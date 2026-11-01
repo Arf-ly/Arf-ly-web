@@ -1,0 +1,93 @@
+.admin_post_title {
+	margin: 14px 0 9px;
+
+	color: var(--gray-warm-900);
+	font-size: 17px;
+	font-weight: 600;
+	line-height: 1.5;
+	letter-spacing: -0.3px;
+
+	word-break: keep-all;
+}
+
+.admin_post_meta {
+	margin: 0;
+
+	color: var(--gray-warm-500);
+	font-size: 11px;
+	font-weight: 400;
+	line-height: 1.6;
+}
+
+.admin_report_post_top {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+}
+
+.admin_report_post_link {
+	flex: 0 0 auto;
+
+	padding: 0;
+	border: none;
+	background: none;
+
+	color: var(--secondary-700);
+	font-family: "Pretendard", sans-serif;
+	font-size: 11px;
+	font-weight: 400;
+	line-height: 1.5;
+	text-decoration: underline;
+	text-underline-offset: 3px;
+
+	cursor: pointer;
+}
+
+.admin_report_post_link:disabled {
+	opacity: 0.6;
+	cursor: default;
+}
+
+.admin_report_post_content {
+	margin: 14px 0 0;
+
+	color: var(--gray-warm-700);
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 1.8;
+
+	white-space: pre-wrap;
+	word-break: keep-all;
+	overflow-wrap: anywhere;
+}
+
+.admin_report_post_state {
+	margin: 14px 0 0;
+
+	color: var(--gray-warm-500);
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 1.7;
+}
+
+.admin_report_actions {
+	display: flex;
+	gap: 10px;
+
+	margin-top: 12px;
+}
+
+.admin_report_footer {
+	display: flex;
+	align-items: stretch;
+	gap: 10px;
+
+	width: 100%;
+	margin-top: 24px;
+}
+
+.admin_report_footer button {
+	flex: 1;
+	min-width: 0;
+}

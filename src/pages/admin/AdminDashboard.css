@@ -1,0 +1,65 @@
+.admin_tasks {
+	margin-top: 28px;
+}
+
+.admin_tasks h2 {
+	margin: 0 0 13px;
+
+	color: var(--gray-warm-900);
+	font-size: 17px;
+	font-weight: 600;
+	line-height: 1.4;
+	letter-spacing: -0.35px;
+}
+
+.admin_task_button {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+
+	width: 100%;
+	margin-top: 10px;
+
+	padding: 19px 18px;
+	border: none;
+	border-radius: 20px;
+	background-color: var(--primary-50);
+	box-sizing: border-box;
+
+	font-family: "Pretendard", sans-serif;
+	text-align: left;
+
+	cursor: pointer;
+}
+
+.admin_task_button div {
+	min-width: 0;
+}
+
+.admin_task_button strong {
+	color: var(--primary-500);
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.5;
+}
+
+.admin_task_button p {
+	margin: 8px 0 0;
+
+	color: var(--gray-warm-600);
+	font-size: 11px;
+	font-weight: 400;
+	line-height: 1.6;
+
+	word-break: keep-all;
+}
+
+.admin_task_button img {
+	flex: 0 0 auto;
+
+	width: 18px;
+	height: 18px;
+	display: block;
+	object-fit: contain;
+}
