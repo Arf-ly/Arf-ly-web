@@ -2,11 +2,11 @@ import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import BottomTabBar from "../../components/BottomTabBar.jsx";
+import NotificationButton from "../../components/NotificationButton.jsx";
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
 import HOMELOGO from "../../assets/home/home_logo.svg";
-import HOMEBELL from "../../assets/home/home_bell.svg";
 import HOMEMALE from "../../assets/home/home_male.svg";
 import HOMEFEMALE from "../../assets/home/home_female.svg";
 import HOMEPAW from "../../assets/home/home_paw.svg";
@@ -363,7 +363,7 @@ export default function Home() {
       <div className="home-wrapper">
         <div className="home-top">
           <img src={HOMELOGO} alt="ARFLY" />
-          <img src={HOMEBELL} alt="" />
+          <NotificationButton />
         </div>
         <div className="home-loading-overlay">
           <div className="home-loading-spinner" />
@@ -378,7 +378,7 @@ export default function Home() {
       <div className="home-wrapper">
         <div className="home-top">
           <img src={HOMELOGO} alt="ARFLY" />
-          <img src={HOMEBELL} alt="" />
+          <NotificationButton />
         </div>
         <div className="home-empty-state">{homeError}</div>
         <BottomTabBar />
@@ -390,7 +390,7 @@ export default function Home() {
     <div className="home-wrapper">
       <div className="home-top">
         <img src={HOMELOGO} />
-        <img src={HOMEBELL} />
+        <NotificationButton />
       </div>
       <div className="home-middle">
         {currentPet && (

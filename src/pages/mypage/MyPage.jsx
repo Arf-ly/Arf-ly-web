@@ -2,7 +2,6 @@
 import { useNavigate } from "react-router-dom";
 
 import MYPAGELOGO from "../../assets/home/home_logo.svg";
-import MYPAGEBELL from "../../assets/home/home_bell.svg";
 import MYPAGENEXTARROW from "../../assets/mypage/mypage_next_arrow.svg";
 import MYPAGEMAPMARK from "../../assets/mypage/mypage_map_mark.svg";
 import MYPAGENOTICE from "../../assets/mypage/mypage_notice.svg";
@@ -18,6 +17,7 @@ import MYPAGEPILL from "../../assets/mypage/mypage_pill.svg";
 
 import "./MyPage.css";
 import BottomTabBar from "../../components/BottomTabBar.jsx";
+import NotificationButton from "../../components/NotificationButton.jsx";
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
@@ -195,7 +195,7 @@ export default function MyPage() {
       <div className="mypage-wrapper">
         <div className="mypage-top">
           <img src={MYPAGELOGO} />
-          <img src={MYPAGEBELL} onClick={() => navigate("/alarmnotification")} />
+          <NotificationButton />
         </div>
         <div className="mypage-loading-overlay">
           <div className="mypage-loading-spinner" />
@@ -210,7 +210,7 @@ export default function MyPage() {
       <div className="mypage-wrapper">
         <div className="mypage-top">
           <img src={MYPAGELOGO} />
-          <img src={MYPAGEBELL} onClick={() => navigate("/alarmnotification")} />
+          <NotificationButton />
         </div>
         <div className="mypage-empty-state">{errorMessage}</div>
         <BottomTabBar></BottomTabBar>
@@ -222,7 +222,7 @@ export default function MyPage() {
     <div className="mypage-wrapper">
       <div className="mypage-top">
         <img src={MYPAGELOGO} />
-        <img src={MYPAGEBELL} onClick={() => navigate("/alarmnotification")} />
+        <NotificationButton />
       </div>
       <div className="mypage-user-info">
         <img src={PROFILEIMG} />

@@ -28,6 +28,9 @@ import AlarmNotification from "./pages/mypage/AlarmNotification.jsx";
 
 import MapPage from "./pages/map/MapPage";
 import PetRegister from "./pages/pet/PetRegister";
+import NotificationPrompt, {
+  NotificationPromptProvider,
+} from "./components/NotificationPrompt.jsx";
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
@@ -45,8 +48,10 @@ function ProtectedRoute({ children }) {
   const location = useLocation();
   const accessToken = localStorage.getItem("accessToken");
   const [showTerms, setShowTerms] = useState(false);
+  const [checkedAccessToken, setCheckedAccessToken] = useState(null);
 
   useEffect(() => {
+    const controller = new AbortController();
     const fetchTermsAgreement = async () => {
       if (!accessToken) return;
 
@@ -55,6 +60,7 @@ function ProtectedRoute({ children }) {
           `${API_BASE_URL}/terms/latest/agreement-status`,
           {
             method: "GET",
+            signal: controller.signal,
             headers: {
               Authorization: `Bearer ${accessToken}`,
               "Content-Type": "application/json",
@@ -65,13 +71,17 @@ function ProtectedRoute({ children }) {
         if (!response.ok) return;
 
         const isAgreed = await response.json();
-        setShowTerms(isAgreed === false);
-      } catch (error) {
-        setShowTerms(false);
+        if (!controller.signal.aborted) {
+          setShowTerms(isAgreed === false);
+          setCheckedAccessToken(accessToken);
+        }
+      } catch {
+        if (!controller.signal.aborted) setShowTerms(false);
       }
     };
 
     fetchTermsAgreement();
+    return () => controller.abort();
   }, [accessToken]);
 
   const handleTermsComplete = async (agreements) => {
@@ -91,12 +101,18 @@ function ProtectedRoute({ children }) {
       });
 
       if (response.ok) {
+        const data = await response.json();
+        if (typeof data.accessToken !== "string" || !data.accessToken.trim()) {
+          throw new Error("약관 동의 응답에 accessToken이 없습니다.");
+        }
+        localStorage.setItem("accessToken", data.accessToken);
+        setCheckedAccessToken(data.accessToken);
         setShowTerms(false);
         return;
       }
 
       alert("약관 동의 처리에 실패했습니다.");
-    } catch (error) {
+    } catch {
       alert("약관 동의 처리 중 오류가 발생했습니다.");
     }
   };
@@ -109,6 +125,7 @@ function ProtectedRoute({ children }) {
   return (
     <>
       {children}
+      {!showTerms && checkedAccessToken === accessToken && <NotificationPrompt />}
       {showTerms && (
         <div className="terms-bottom-sheet-overlay">
           <div className="terms-bottom-sheet-content">
@@ -125,66 +142,74 @@ const protectedElement = (element) => (
 );
 
 function App() {
+  useLocation();
+  const accessToken = localStorage.getItem("accessToken");
+  const sessionKey = accessToken
+    ? localStorage.getItem("refreshToken") || accessToken
+    : "anonymous";
+
   return (
-    <Routes>
-      {/* 로그인 관련 */}
-      <Route path="/" element={<Login />} />
-      <Route path="/oauth/*" element={<Login />} />{" "}
-      <Route path="/login" element={<SystemLogin />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/auth/find" element={<Find />} />
-      {/* 홈 관련 */}
-      <Route path="/home" element={protectedElement(<Home />)} />
-      {/* 주간 활동 리포트 관련 */}
-      <Route
-        path="/weeklyactive/:petId"
-        element={protectedElement(<WeeklyActive />)}
-      />
-      <Route
-        path="/walkedresult"
-        element={protectedElement(<WalkedResult />)}
-      />
-      {/* 카메라 관련 */}
-      <Route path="/camera" element={protectedElement(<Camera />)} />
-      <Route
-        path="/diseasecheck"
-        element={protectedElement(<DiseaseCheck />)}
-      />
-      {/* 커뮤니티 관련 */}
-      <Route path="/community" element={protectedElement(<Community />)} />
-      <Route
-        path="/community/write"
-        element={protectedElement(<CommunityWrite />)}
-      />
-      <Route
-        path="/community/search"
-        element={protectedElement(<CommunitySearch />)}
-      />
-      <Route
-        path="/community/:postId"
-        element={protectedElement(<CommunityDetail />)}
-      />
-      <Route
-        path="/community/:postId/edit"
-        element={protectedElement(<CommunityEdit />)}
-      />
-      {/* 마이페이지 관련 */}
-      <Route path="/mypage" element={protectedElement(<MyPage />)} />
-      <Route path="/pet/register" element={protectedElement(<PetRegister />)} />
-      <Route path="/iotregister" element={protectedElement(<IoTRegister />)} />
-      <Route path="/petdetail" element={protectedElement(<PetDetail />)} />
-      <Route path="/userprofile" element={protectedElement(<UserProfile />)} />
-      <Route
-        path="/medicinealarm"
-        element={protectedElement(<MedicineAlarm />)}
-      />
-      <Route
-        path="/alarmnotification"
-        element={protectedElement(<AlarmNotification />)}
-      />
-      {/* 지도 관련 */}
-      <Route path="/map" element={protectedElement(<MapPage />)} />
-    </Routes>
+    <NotificationPromptProvider key={sessionKey}>
+      <Routes>
+        {/* 로그인 관련 */}
+        <Route path="/" element={<Login />} />
+        <Route path="/oauth/*" element={<Login />} />{" "}
+        <Route path="/login" element={<SystemLogin />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/auth/find" element={<Find />} />
+        {/* 홈 관련 */}
+        <Route path="/home" element={protectedElement(<Home />)} />
+        {/* 주간 활동 리포트 관련 */}
+        <Route
+          path="/weeklyactive/:petId"
+          element={protectedElement(<WeeklyActive />)}
+        />
+        <Route
+          path="/walkedresult"
+          element={protectedElement(<WalkedResult />)}
+        />
+        {/* 카메라 관련 */}
+        <Route path="/camera" element={protectedElement(<Camera />)} />
+        <Route
+          path="/diseasecheck"
+          element={protectedElement(<DiseaseCheck />)}
+        />
+        {/* 커뮤니티 관련 */}
+        <Route path="/community" element={protectedElement(<Community />)} />
+        <Route
+          path="/community/write"
+          element={protectedElement(<CommunityWrite />)}
+        />
+        <Route
+          path="/community/search"
+          element={protectedElement(<CommunitySearch />)}
+        />
+        <Route
+          path="/community/:postId"
+          element={protectedElement(<CommunityDetail />)}
+        />
+        <Route
+          path="/community/:postId/edit"
+          element={protectedElement(<CommunityEdit />)}
+        />
+        {/* 마이페이지 관련 */}
+        <Route path="/mypage" element={protectedElement(<MyPage />)} />
+        <Route path="/pet/register" element={protectedElement(<PetRegister />)} />
+        <Route path="/iotregister" element={protectedElement(<IoTRegister />)} />
+        <Route path="/petdetail" element={protectedElement(<PetDetail />)} />
+        <Route path="/userprofile" element={protectedElement(<UserProfile />)} />
+        <Route
+          path="/medicinealarm"
+          element={protectedElement(<MedicineAlarm />)}
+        />
+        <Route
+          path="/alarmnotification"
+          element={protectedElement(<AlarmNotification />)}
+        />
+        {/* 지도 관련 */}
+        <Route path="/map" element={protectedElement(<MapPage />)} />
+      </Routes>
+    </NotificationPromptProvider>
   );
 }
 
