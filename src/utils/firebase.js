@@ -14,5 +14,5 @@ export const app = getApps().some((item) => item.name === "[DEFAULT]")
   ? getApp()
   : initializeApp(firebaseConfig);
 
-// The messaging service worker only needs the Firebase app, not authentication.
+// 알림 전용 서비스 워커에서는 인증을 초기화하지 않습니다.
 export const auth = typeof window !== "undefined" ? getAuth(app) : null;

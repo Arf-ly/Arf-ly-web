@@ -1,0 +1,45 @@
+.photo-source-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background-color: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.photo-source-sheet {
+  width: 100%;
+  max-width: 600px;
+  background-color: var(--common-white);
+  border-radius: 24px 24px 0 0;
+  padding: 18px 20px 34px;
+  box-sizing: border-box;
+}
+
+.photo-source-sheet button {
+  width: 100%;
+  height: 80px;
+  border: 0;
+  border-bottom: 1px solid var(--gray-warm-200);
+  background-color: transparent;
+  text-align: left;
+  font-family: "Pretendard", sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--common-black);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+}
+
+.photo-source-sheet button:last-child {
+  border-bottom: 0;
+}
+
+@media (max-width: 430px) {
+  .photo-source-sheet button {
+    font-size: 16px;
+  }
+}

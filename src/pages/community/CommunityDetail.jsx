@@ -279,7 +279,6 @@ function CommunityDetail() {
 
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-	const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
 	const [commentContent, setCommentContent] = useState("");
 	const [mentionedUsers, setMentionedUsers] = useState([]);
@@ -399,7 +398,12 @@ function CommunityDetail() {
 
 	const handleReportClick = () => {
 		setIsMenuOpen(false);
-		setIsReportModalOpen(true);
+
+		navigate(`/community/${postId}/report`, {
+			state: {
+				postTitle: post?.title,
+			},
+		});
 	};
 
 	const handleEditClick = () => {
@@ -700,32 +704,6 @@ function CommunityDetail() {
 					</button>
 				</div>
 			</footer>
-
-			{isReportModalOpen && (
-				<div className="community_detail_modal_overlay">
-					<div className="community_detail_modal report">
-						<div className="community_detail_modal_icon">
-							<img src={ComplainIcon} alt="" />
-						</div>
-
-						<h2>게시글 신고가 접수되었어요</h2>
-
-						<p>
-							더 안전한 커뮤니티를 위해
-							<br />
-							운영팀이 내용을 꼼꼼히 확인할게요.
-						</p>
-
-						<button
-							className="community_detail_modal_primary_button"
-							type="button"
-							onClick={() => setIsReportModalOpen(false)}
-						>
-							확인
-						</button>
-					</div>
-				</div>
-			)}
 
 			{isDeleteModalOpen && (
 				<div className="community_detail_modal_overlay">

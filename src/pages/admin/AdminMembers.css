@@ -1,0 +1,83 @@
+.admin_member_account {
+	margin: 13px 0 0;
+
+	color: var(--gray-warm-600);
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 1.7;
+
+	overflow-wrap: anywhere;
+}
+
+.admin_stats.member {
+	margin-top: 12px;
+}
+
+.admin_stats.member .admin_stat_card {
+	min-height: 116px;
+}
+
+.admin_member_posts {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+
+	margin-top: 16px;
+}
+
+.admin_member_post_button {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+
+	width: 100%;
+
+	padding: 14px;
+	border: 1px solid var(--gray-warm-200);
+	border-radius: 14px;
+	background-color: var(--common-white);
+	box-sizing: border-box;
+
+	color: var(--gray-warm-700);
+	font-family: "Pretendard", sans-serif;
+	text-align: left;
+
+	cursor: pointer;
+}
+
+.admin_member_post_button strong {
+	font-size: 14px;
+	font-weight: 500;
+	line-height: 1.5;
+
+	word-break: keep-all;
+}
+
+.admin_member_post_meta {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+
+	margin-top: 8px;
+
+	color: var(--gray-warm-500);
+	font-size: 11px;
+	font-weight: 400;
+	line-height: 1.5;
+}
+
+.admin_member_post_content {
+	display: -webkit-box;
+	margin: 8px 0 0;
+
+	color: var(--gray-warm-500);
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 1.6;
+
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	line-clamp: 2;
+	overflow: hidden;
+	word-break: keep-all;
+}

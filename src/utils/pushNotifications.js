@@ -1,6 +1,6 @@
 import { getMessaging, getToken, isSupported } from "firebase/messaging";
 import messagingWorkerUrl from "../firebase-messaging-sw.js?worker&url";
-import { app, firebaseConfig } from "../firebase.js";
+import { app, firebaseConfig } from "./firebase.js";
 import { sendFcmToken } from "../pages/mypage/NotificationApi.js";
 
 const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY?.trim();

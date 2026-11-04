@@ -1,5 +1,5 @@
 import { getMessaging, onBackgroundMessage } from "firebase/messaging/sw";
-import { app } from "./firebase.js";
+import { app } from "./utils/firebase.js";
 
 const messaging = getMessaging(app);
 

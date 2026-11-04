@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-import { auth } from "../../../firebase";
+import { auth } from "../../../utils/firebase.js";
 import Terms from "./Terms";
 import "./Signup.css";
 
@@ -76,7 +76,7 @@ const Signup = () => {
       } else {
         setIdStatus("duplicate");
       }
-    } catch (error) {
+    } catch {
       alert("아이디 중복 확인에 실패했습니다.");
       setIdStatus("idle");
     }
@@ -228,19 +228,8 @@ const Signup = () => {
       setTimeLeft(300);
       setCodeStatus("idle");
       setCode("");
-    } catch (error) {
+    } catch {
       alert("인증번호 발송에 실패했습니다.");
-    }
-  };
-
-  // 번호 확인
-  const verifyCode = async () => {
-    if (!code || code.length !== 6 || !confirmationResult) return;
-    try {
-      await confirmationResult.confirm(code);
-      setCodeStatus("match");
-    } catch (error) {
-      setCodeStatus("mismatch");
     }
   };
 
@@ -264,7 +253,7 @@ const Signup = () => {
       setAuthToken(token);
       setCodeStatus("match");
       setStep(3); // 이용약관 단계로 이동
-    } catch (error) {
+    } catch {
       setCodeStatus("mismatch");
     }
   };
@@ -289,11 +278,11 @@ const Signup = () => {
 
     const payload = {
       userId: id,
-      password: password,
+      password,
       token: {
         token: authToken,
       },
-      userAgreements: userAgreements,
+      userAgreements,
     };
 
     try {
