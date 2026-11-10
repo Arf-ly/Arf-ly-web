@@ -9,6 +9,7 @@ const REGISTRATION_KEY = "arfly:fcm-registration";
 const pendingRegistrations = new Map();
 const completedSessions = new Set();
 
+/** 푸시 알림에 필요한 환경 설정을 확인하고 누락된 경우 오류를 알린다. */
 export function validatePushConfiguration() {
   const requiredValues = {
     VITE_FIREBASE_API_KEY: firebaseConfig.apiKey,
@@ -31,6 +32,7 @@ export function validatePushConfiguration() {
   }
 }
 
+/** 현재 브라우저와 접속 환경이 Firebase 푸시 알림을 지원하는지 확인한다. */
 export async function isPushSupported() {
   if (
     typeof window === "undefined" ||
@@ -48,6 +50,7 @@ export async function isPushSupported() {
   }
 }
 
+/** 서비스 워커가 활성화될 때까지 기다리고 실패나 시간 초과를 처리한다. */
 function waitForActiveWorker(registration) {
   if (registration.active?.state === "activated") {
     return Promise.resolve(registration);
@@ -61,6 +64,7 @@ function waitForActiveWorker(registration) {
   }
 
   return new Promise((resolve, reject) => {
+    /** 서비스 워커 활성화 대기의 타이머와 상태 변경 리스너를 정리한다. */
     const cleanup = () => {
       clearTimeout(timeout);
       worker.removeEventListener("statechange", onStateChange);
@@ -73,6 +77,7 @@ function waitForActiveWorker(registration) {
       );
     }, WORKER_ACTIVATION_TIMEOUT_MS);
 
+    /** 서비스 워커 상태에 따라 활성화 대기를 완료하거나 실패로 종료한다. */
     function onStateChange() {
       if (worker.state === "activated") {
         cleanup();
@@ -90,6 +95,7 @@ function waitForActiveWorker(registration) {
   });
 }
 
+/** 알림 설정과 권한을 확인하고 서비스 워커를 통해 FCM 토큰을 발급한다. */
 export async function getFcmToken() {
   validatePushConfiguration();
 
@@ -107,7 +113,7 @@ export async function getFcmToken() {
   });
   await waitForActiveWorker(registration);
 
-  // getToken can request permission itself; keep that prompt in the user click handler.
+  // 대기 중 권한이 바뀌면 getToken이 사용자 클릭 밖에서 권한 창을 열지 않게 한다.
   if (Notification.permission !== "granted") {
     throw new Error("브라우저에서 알림 권한을 허용해주세요.");
   }
@@ -124,8 +130,7 @@ export async function getFcmToken() {
   return token;
 }
 
-// Prompt history and successful server registration are independent. An old
-// "prompt seen" flag must never prevent a permitted browser from registering.
+/** 안내 표시 이력과 별개로 현재 세션의 FCM 등록을 처리하고 중복 요청을 합친다. */
 export function registerFcmTokenOnce({ signal } = {}) {
   const accessToken = localStorage.getItem("accessToken");
   const session = localStorage.getItem("refreshToken") || accessToken;
@@ -133,6 +138,7 @@ export function registerFcmTokenOnce({ signal } = {}) {
   if (completedSessions.has(session)) return Promise.resolve();
   if (pendingRegistrations.has(session)) return pendingRegistrations.get(session);
 
+  /** 비동기 요청을 시작한 로그인 세션이 여전히 유효한지 확인한다. */
   const isCurrentSession = () =>
     Boolean(localStorage.getItem("accessToken")) &&
     (localStorage.getItem("refreshToken") || localStorage.getItem("accessToken")) ===
@@ -144,7 +150,6 @@ export function registerFcmTokenOnce({ signal } = {}) {
     signal?.throwIfAborted();
     if (!isCurrentSession()) throw new Error("로그인 정보가 변경되었습니다.");
 
-    // Store a fingerprint, not authentication credentials or the FCM token.
     const digest = await crypto.subtle.digest(
       "SHA-256",
       new TextEncoder().encode(JSON.stringify([session, token])),
@@ -156,7 +161,7 @@ export function registerFcmTokenOnce({ signal } = {}) {
     try {
       registeredFingerprint = sessionStorage.getItem(REGISTRATION_KEY);
     } catch {
-      // In-memory deduplication still works if session storage is unavailable.
+      // 저장소를 사용할 수 없어도 메모리의 세션 기록으로 중복 등록을 막는다.
     }
 
     signal?.throwIfAborted();
@@ -177,7 +182,7 @@ export function registerFcmTokenOnce({ signal } = {}) {
       try {
         sessionStorage.setItem(REGISTRATION_KEY, fingerprint);
       } catch {
-        // Server registration succeeded; keep this visit registered in memory.
+        // 서버 등록은 완료되었으므로 현재 방문의 성공 상태는 메모리에 남긴다.
       }
     }
 

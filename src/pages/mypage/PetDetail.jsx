@@ -16,12 +16,14 @@ import PETDETAILTRASH from "../../assets/mypage/PetDetail/PetDetail_trash.svg";
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
+/** 저장된 액세스 토큰이 있으면 인증 헤더를 구성한다. */
 const getAuthHeaders = () => {
   const accessToken = localStorage.getItem("accessToken");
 
   return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
 };
 
+/** 비어 있지 않은 조회 조건을 쿼리 문자열로 붙여 API 주소를 만든다. */
 const createApiUrl = (path, query = {}) => {
   const params = new URLSearchParams();
 
@@ -35,6 +37,7 @@ const createApiUrl = (path, query = {}) => {
   return `${API_BASE_URL}${path}${queryString ? `?${queryString}` : ""}`;
 };
 
+/** 문자열이 JSON이면 해석하고 그렇지 않으면 원래 값을 반환한다. */
 const parseMaybeJson = (value) => {
   if (typeof value !== "string") return value;
 
@@ -45,6 +48,7 @@ const parseMaybeJson = (value) => {
   }
 };
 
+/** multipart 응답의 경계와 필드 이름을 해석해 응답 객체를 구성한다. */
 const parseMultipartFormData = async (response) => {
   const contentType = response.headers.get("content-type") || "";
   const boundary =
@@ -83,6 +87,7 @@ const parseMultipartFormData = async (response) => {
   return parsedParts;
 };
 
+/** 응답 형식에 따라 JSON 또는 multipart 본문을 해석한다. */
 const readApiResponse = async (response) => {
   const contentType = response.headers.get("content-type") || "";
 
@@ -93,6 +98,7 @@ const readApiResponse = async (response) => {
   return response.json();
 };
 
+/** 인증 정보를 포함해 데이터를 조회하고 응답 본문을 반환한다. */
 const fetchApiData = async (path, query) => {
   const response = await fetch(createApiUrl(path, query), {
     method: "GET",
@@ -109,6 +115,7 @@ const fetchApiData = async (path, query) => {
   return readApiResponse(response);
 };
 
+/** 인증 헤더를 포함해 지정된 API 리소스의 삭제를 요청한다. */
 const deleteApiData = async (path) => {
   const response = await fetch(createApiUrl(path), {
     method: "DELETE",
@@ -123,6 +130,7 @@ const deleteApiData = async (path) => {
   }
 };
 
+/** 산책 응답을 날짜와 활동 수치, 반려동물이 포함된 표시용 기록으로 변환한다. */
 const normalizeWalk = (walk, fallbackPet) => {
   const durationMinutes = Number(walk.durationMinutes ?? 0);
   const pet = walk.pet || fallbackPet || {};
@@ -145,6 +153,7 @@ const normalizeWalk = (walk, fallbackPet) => {
   };
 };
 
+/** 선택한 반려동물의 프로필과 산책 기록을 표시하고 수정 및 삭제 진입을 제공한다. */
 export default function PetDetail() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -163,14 +172,18 @@ export default function PetDetail() {
   const shouldShowWalkRecords =
     isWalkRecordsLoading || walkRecordsErrorMessage || walkRecords.length > 0;
 
+  /** 숫자를 앞자리 0이 포함된 두 자리 문자열로 변환한다. */
   const padTwo = (value) => String(value).padStart(2, "0");
+  /** 활동 수치를 천 단위 구분이 포함된 문자열로 변환한다. */
   const formatCount = (value) => Number(value).toLocaleString();
+  /** 산책 날짜를 화면에 표시할 요일로 변환한다. */
   const getDayLabel = (year, month, date) => {
     const dayLabels = ["월", "화", "수", "목", "금", "토", "일"];
     const dayIndex = new Date(year, month - 1, date).getDay();
     return dayLabels[dayIndex];
   };
 
+  /** 선택한 반려동물을 삭제하고 마이페이지로 돌아간다. */
   const handleDeletePet = async () => {
     if (!pet?.id || isDeletingPet) return;
 
@@ -178,7 +191,7 @@ export default function PetDetail() {
       setIsDeletingPet(true);
       await deleteApiData(`/api/pets/${pet.id}`);
       navigate("/mypage", { replace: true });
-    } catch (error) {
+    } catch {
       alert("반려동물 정보를 삭제하지 못했습니다.");
     } finally {
       setIsDeletingPet(false);
@@ -190,6 +203,7 @@ export default function PetDetail() {
 
     let isActive = true;
 
+    /** 선택한 반려동물의 산책 기록을 조회해 화면에 반영한다. */
     const loadWalkRecords = async () => {
       try {
         setIsWalkRecordsLoading(true);
@@ -202,7 +216,7 @@ export default function PetDetail() {
         setWalkRecords(
           (walkData?.walks || []).map((walk) => normalizeWalk(walk, pet)),
         );
-      } catch (error) {
+      } catch {
         if (isActive) {
           setWalkRecordsErrorMessage("산책 정보를 불러올 수 없습니다.");
         }

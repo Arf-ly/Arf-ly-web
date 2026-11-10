@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useRevalidator } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./SystemLogin.css";
 
 import BackBtn from "../../../assets/login/system/backbtn.svg";
@@ -10,6 +10,7 @@ import ClosePassword from "../../../assets/login/system/close_password.svg";
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
+/** 아이디와 비밀번호를 입력받아 일반 로그인을 처리한다. */
 const SystemLogin = () => {
   const navigate = useNavigate();
 
@@ -18,13 +19,13 @@ const SystemLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState(false);
 
-  // 뒤로가기 함수
-  const handleGoBack = (e) => {
+  /** 일반 로그인 화면에서 이전 화면으로 돌아간다. */
+  const handleGoBack = () => {
     navigate(-1);
   };
 
-  // 로그인 처리 함수
-  const handleLogin = async (e) => {
+  /** 아이디와 비밀번호로 로그인하고 발급된 인증 토큰을 저장한다. */
+  const handleLogin = async () => {
     setLoginError(false);
     try {
       const response = await fetch(`${API_BASE_URL}/auth/doLogin`, {
@@ -43,20 +44,18 @@ const SystemLogin = () => {
       } else {
         setLoginError(true);
       }
-    } catch (error) {
+    } catch {
       setLoginError(true);
     }
   };
 
   return (
     <div className="SystemLoginWrapper">
-      {/* 뒤로가기 */}
       <div className="BackBtn">
         <button type="button" onClick={handleGoBack}>
           <img src={BackBtn} alt="뒤로가기" />
         </button>
       </div>
-      {/* 로그인 글 */}
       <div className="LoginText">
         <h2>
           ARFLY와 다시 한번
@@ -64,9 +63,7 @@ const SystemLogin = () => {
           건강한 반려인 라이프를 즐겨요!
         </h2>
       </div>
-      {/* 입력 폼 */}
       <div className="LoginInputForm">
-        {/* 아이디 입력 칸 */}
         <div className="IdInput InputContainer">
           <img src={UserIcon} alt="아이디" />
           <input
@@ -77,7 +74,6 @@ const SystemLogin = () => {
             onChange={(e) => setUserId(e.target.value)}
           />
         </div>
-        {/* 비밀번호 입력 칸 */}
         <div className="PwInput InputContainer">
           <img src={PasswordIcon} alt="비밀번호" />
           <input
@@ -104,14 +100,12 @@ const SystemLogin = () => {
           </div>
         )}
       </div>
-      {/* 아이디 비밀번호 찾기 */}
       <div className="findIdPw">
         <span className="problemText">문제가 생겼나요?</span>
         <a href="/auth/find" className="findLink">
           아이디 비밀번호 찾기
         </a>
       </div>
-      {/* 로그인 버튼 */}
       <div className="summitLogin">
         <button
           type="button"

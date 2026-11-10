@@ -6,6 +6,7 @@ const api = axios.create({
   timeout: 10000,
 });
 
+/** 현재 사용자의 푸시 알림 토큰과 기기 유형을 서버에 등록한다. */
 export async function sendFcmToken(
   fcmToken,
   accessToken = localStorage.getItem("accessToken"),
@@ -26,6 +27,7 @@ export async function sendFcmToken(
   );
 }
 
+/** 커서에 맞는 알림 목록을 조회하고 목록과 다음 페이지 정보를 검증한다. */
 export async function getNotifications({ cursor, size = 20, signal } = {}) {
   const accessToken = localStorage.getItem("accessToken");
   const params = { size };

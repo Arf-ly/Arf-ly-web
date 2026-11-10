@@ -12,6 +12,7 @@ import ImageIcon from "../../assets/community/image.svg";
 
 import ExitImageIcon from "../../assets/community/exit_image.svg";
 
+/** 서로 다른 첨부 파일 응답 형식에서 이미지 주소를 추출한다. */
 const getMediaUrl = (media) => {
 
 	if (!media) {
@@ -40,6 +41,7 @@ const getMediaUrl = (media) => {
 
 };
 
+/** 게시글 응답의 첨부 파일 정보를 화면에서 사용할 이미지 목록으로 정리한다. */
 const getPostImages = (post) => {
 
 	if (!post) {
@@ -90,6 +92,7 @@ const getPostImages = (post) => {
 
 };
 
+/** 기존 게시글의 내용과 첨부 이미지를 불러와 수정 및 저장을 제공한다. */
 function CommunityEdit() {
 
 	const navigate = useNavigate();
@@ -116,6 +119,7 @@ function CommunityEdit() {
 			setPreviewItems(postImages);
 			return;
 		}
+		/** 게시글 상세 내용을 불러와 화면 상태를 갱신한다. */
 		const fetchPostDetail = async () => {
 			try {
 				setIsLoading(true);
@@ -143,17 +147,21 @@ function CommunityEdit() {
 			});
 		};
 	}, [previewItems]);
+	/** 게시글 수정 화면에서 커뮤니티 목록으로 이동한다. */
 	const handleBackClick = () => {
 		navigate("/community");
 	};
+	/** 게시글 제목 입력값과 내용에 맞는 입력창 높이를 갱신한다. */
 	const handleTitleChange = (event) => {
 		setTitle(event.target.value);
 		event.target.style.height = "auto";
 		event.target.style.height = `${event.target.scrollHeight}px`;
 	};
+	/** 게시글에 첨부할 파일을 선택하는 창을 연다. */
 	const handleFileButtonClick = () => {
 		fileInputRef.current?.click();
 	};
+	/** 이름과 크기, 수정 시각을 비교해 중복 첨부 파일인지 확인한다. */
 	const isSameFile = (fileA, fileB) => {
 		return (
 			fileA.name === fileB.name &&
@@ -161,6 +169,7 @@ function CommunityEdit() {
 			fileA.lastModified === fileB.lastModified
 		);
 	};
+	/** 게시글에 첨부할 수 있는 파일 형식인지 확인한다. */
 	const isAllowedFile = (file) => {
 		const allowedTypes = [
 			"image/png",
@@ -172,6 +181,7 @@ function CommunityEdit() {
 		];
 		return allowedTypes.includes(file.type);
 	};
+	/** 첨부 파일마다 미리보기 주소와 식별 정보를 생성한다. */
 	const makePreviewItems = (targetFiles) => {
 		return targetFiles.map((file) => ({
 			url: URL.createObjectURL(file),
@@ -180,6 +190,7 @@ function CommunityEdit() {
 			isExisting: false,
 		}));
 	};
+	/** 파일 형식과 중복, 개수를 확인하고 첨부 목록에 추가한다. */
 	const handleFileChange = (event) => {
 		const selectedFiles = Array.from(event.target.files);
 		if (selectedFiles.length === 0) {
@@ -219,6 +230,7 @@ function CommunityEdit() {
 		]);
 		event.target.value = "";
 	};
+	/** 선택한 첨부 파일을 제거하고 관련 미리보기 주소를 정리한다. */
 	const handleRemoveFile = (removeIndex) => {
 		const removeItem = previewItems[removeIndex];
 		if (
@@ -251,6 +263,7 @@ function CommunityEdit() {
 		setFiles(nextFiles);
 		setPreviewItems(nextPreviewItems);
 	};
+	/** 변경한 게시글 내용과 첨부 파일을 저장하고 상세 화면으로 이동한다. */
 	const handleSubmit = async () => {
 		setIsSubmitted(true);
 		if (!isActive || isSubmitting) {

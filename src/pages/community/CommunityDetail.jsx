@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import "./CommunityDetail.css";
@@ -20,6 +20,7 @@ import ComplainIcon from "../../assets/community/complain.svg";
 import DeleteIcon from "../../assets/community/delete.svg";
 import EditIcon from "../../assets/community/edit.svg";
 
+/** 작성 일시를 화면에서 사용하는 날짜와 시간 형식으로 변환한다. */
 const formatDate = (createdAt) => {
 	if (!createdAt) {
 		return "";
@@ -39,6 +40,7 @@ const formatDate = (createdAt) => {
 	return `${month}/${day} ${hour}:${minute}`;
 };
 
+/** 댓글의 사용자 언급 문법을 표시용 요소로 변환한다. */
 const renderCommentContent = (content) => {
 	if (!content) {
 		return "";
@@ -75,6 +77,7 @@ const renderCommentContent = (content) => {
 	return parts;
 };
 
+/** 서로 다른 첨부 파일 응답 형식에서 이미지 주소를 추출한다. */
 const getMediaUrl = (media) => {
 	if (!media) {
 		return "";
@@ -104,6 +107,7 @@ const getMediaUrl = (media) => {
 	);
 };
 
+/** 게시글 응답의 첨부 파일 정보를 화면에서 사용할 이미지 목록으로 정리한다. */
 const getPostImages = (post) => {
 	if (!post) {
 		return [];
@@ -143,6 +147,7 @@ const getPostImages = (post) => {
 		.filter((image) => image.url);
 };
 
+/** 게시글 응답에서 댓글 목록을 추출한다. */
 const getComments = (post) => {
 	const comments =
 		post?.comments ||
@@ -158,6 +163,7 @@ const getComments = (post) => {
 	return comments;
 };
 
+/** 게시글 작성자 정보를 표시용 이름으로 정리한다. */
 const getWriterName = (post) => {
 	return (
 		post?.authorNickname ||
@@ -172,6 +178,7 @@ const getWriterName = (post) => {
 	);
 };
 
+/** 댓글 작성자 정보를 표시용 이름으로 정리한다. */
 const getCommentWriterName = (comment) => {
 	return (
 		comment.authorNickName ||
@@ -186,6 +193,7 @@ const getCommentWriterName = (comment) => {
 	);
 };
 
+/** 댓글 작성자 정보에서 사용자 식별자를 추출한다. */
 const getCommentWriterId = (comment) => {
 	return (
 		comment.authorId ||
@@ -197,6 +205,7 @@ const getCommentWriterId = (comment) => {
 	);
 };
 
+/** 게시글 소유 여부와 로그인 사용자 정보를 확인해 본인 글인지 판단한다. */
 const checkIsMine = (post) => {
 	if (!post) {
 		return false;
@@ -261,14 +270,17 @@ const checkIsMine = (post) => {
 	return false;
 };
 
+/** 게시글 응답에서 좋아요 개수를 추출한다. */
 const getLikeCount = (post) => {
 	return Number(post.likeCount || post.likesCount || post.likes || 0);
 };
 
+/** 게시글 응답에서 현재 사용자의 좋아요 여부를 추출한다. */
 const getLiked = (post) => {
 	return Boolean(post.liked || post.isLiked || post.likeStatus);
 };
 
+/** 게시글 상세 내용과 좋아요, 댓글, 사용자 언급 및 글 관리를 제공한다. */
 function CommunityDetail() {
 	const navigate = useNavigate();
 	const { postId } = useParams();
@@ -319,7 +331,8 @@ function CommunityDetail() {
 		];
 	}, []);
 
-	const fetchPostDetail = async () => {
+	/** 게시글 상세 내용을 불러와 화면 상태를 갱신한다. */
+	const fetchPostDetail = useCallback(async () => {
 		try {
 			setIsLoading(true);
 			setErrorMessage("");
@@ -332,12 +345,13 @@ function CommunityDetail() {
 		} finally {
 			setIsLoading(false);
 		}
-	};
+	}, [postId]);
 
 	useEffect(() => {
 		fetchPostDetail();
-	}, [postId]);
+	}, [fetchPostDetail]);
 
+	/** 댓글 입력의 마지막 사용자 언급이 작성 중인지 확인한다. */
 	const shouldOpenMentionList = (value) => {
 		const atIndex = value.lastIndexOf("@");
 
@@ -354,10 +368,12 @@ function CommunityDetail() {
 		return true;
 	};
 
+	/** 게시글 상세 화면에서 커뮤니티 목록으로 이동한다. */
 	const handleBackClick = () => {
 		navigate("/community");
 	};
 
+	/** 좋아요 변경 요청 후 게시글의 좋아요 상태와 개수를 갱신한다. */
 	const handleLikeClick = async () => {
 		if (isLiking) {
 			return;
@@ -396,6 +412,7 @@ function CommunityDetail() {
 		}
 	};
 
+	/** 게시글 제목을 전달하고 해당 게시글의 신고 화면으로 이동한다. */
 	const handleReportClick = () => {
 		setIsMenuOpen(false);
 
@@ -406,6 +423,7 @@ function CommunityDetail() {
 		});
 	};
 
+	/** 현재 게시글 정보를 전달하고 수정 화면으로 이동한다. */
 	const handleEditClick = () => {
 		setIsMenuOpen(false);
 
@@ -416,11 +434,13 @@ function CommunityDetail() {
 		});
 	};
 
+	/** 게시글 메뉴를 닫고 삭제 확인 창을 연다. */
 	const handleDeleteClick = () => {
 		setIsMenuOpen(false);
 		setIsDeleteModalOpen(true);
 	};
 
+	/** 게시글을 삭제하고 커뮤니티 목록으로 이동한다. */
 	const handleDeleteConfirm = async () => {
 		if (isDeleting) {
 			return;
@@ -439,6 +459,7 @@ function CommunityDetail() {
 		}
 	};
 
+	/** 표시된 사용자 언급을 서버가 사용하는 댓글 문법으로 변환한다. */
 	const makeSubmitCommentContent = () => {
 		let submitContent = commentContent.trim();
 
@@ -454,6 +475,7 @@ function CommunityDetail() {
 		return submitContent;
 	};
 
+	/** 댓글과 언급 정보를 등록하고 게시글 상세 내용을 다시 조회한다. */
 	const handleCommentSubmit = async () => {
 		if (!isCommentActive || isSubmittingComment) {
 			return;
@@ -480,6 +502,7 @@ function CommunityDetail() {
 		}
 	};
 
+	/** 댓글 입력값과 사용자 언급 목록의 표시 상태를 갱신한다. */
 	const handleCommentChange = (event) => {
 		const nextValue = event.target.value;
 
@@ -498,6 +521,7 @@ function CommunityDetail() {
 		});
 	};
 
+	/** 선택한 사용자를 댓글에 삽입하고 언급 대상 목록에 반영한다. */
 	const handleMentionUserClick = (user) => {
 		const mentionText = `@${user.nickname} `;
 		const atIndex = commentContent.lastIndexOf("@");

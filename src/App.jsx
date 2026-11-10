@@ -49,6 +49,7 @@ const termsMapping = {
   night: 7,
 };
 
+/** 로그인과 약관 동의 상태를 확인하고 보호된 화면과 알림 안내를 표시한다. */
 function ProtectedRoute({ children }) {
   const location = useLocation();
   const accessToken = localStorage.getItem("accessToken");
@@ -59,6 +60,7 @@ function ProtectedRoute({ children }) {
     let isActive = true;
     const controller = new AbortController();
 
+    /** 현재 로그인 토큰으로 최신 약관 동의 여부를 조회한다. */
     const fetchTermsAgreement = async () => {
       if (!accessToken) return;
 
@@ -95,6 +97,7 @@ function ProtectedRoute({ children }) {
     };
   }, [accessToken]);
 
+  /** 약관 동의 결과를 전송하고 새 토큰으로 현재 로그인 상태를 갱신한다. */
   const handleTermsComplete = async (agreements) => {
     const userAgreements = Object.keys(agreements).map((key) => ({
       termId: termsMapping[key],
@@ -149,10 +152,12 @@ function ProtectedRoute({ children }) {
   );
 }
 
+/** 페이지를 로그인과 약관 동의 확인 경로로 감싼다. */
 const protectedElement = (element) => (
   <ProtectedRoute>{element}</ProtectedRoute>
 );
 
+/** 앱 경로를 구성하고 로그인 세션의 토큰 갱신과 알림 상태를 관리한다. */
 function App() {
   useLocation();
   const refreshToken = localStorage.getItem("refreshToken");
@@ -190,15 +195,12 @@ function App() {
   return (
     <NotificationPromptProvider key={sessionKey}>
       <Routes>
-        {/* 로그인 관련 */}
         <Route path="/" element={<Login />} />
         <Route path="/oauth/*" element={<Login />} />
         <Route path="/login" element={<SystemLogin />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/auth/find" element={<Find />} />
-        {/* 홈 관련 */}
         <Route path="/home" element={protectedElement(<Home />)} />
-        {/* 주간 활동 리포트 관련 */}
         <Route
           path="/weeklyactive/:petId"
           element={protectedElement(<WeeklyActive />)}
@@ -207,7 +209,6 @@ function App() {
           path="/walkedresult"
           element={protectedElement(<WalkedResult />)}
         />
-        {/* 카메라 관련 */}
         <Route path="/camera" element={protectedElement(<DiagnosisCamera />)} />
         <Route
           path="/doctor-verification/camera"
@@ -217,7 +218,6 @@ function App() {
           path="/diseasecheck"
           element={protectedElement(<DiseaseCheck />)}
         />
-        {/* 커뮤니티 관련 */}
         <Route path="/community" element={protectedElement(<Community />)} />
         <Route
           path="/community/write"
@@ -239,7 +239,6 @@ function App() {
           path="/community/:postId/report"
           element={protectedElement(<CommunityReport />)}
         />
-        {/* 마이페이지 관련 */}
         <Route path="/mypage" element={protectedElement(<MyPage />)} />
         <Route path="/pet/register" element={protectedElement(<PetRegister />)} />
         <Route path="/iotregister" element={protectedElement(<IoTRegister />)} />
@@ -253,9 +252,7 @@ function App() {
           path="/alarmnotification"
           element={protectedElement(<AlarmNotification />)}
         />
-        {/* 지도 관련 */}
         <Route path="/map" element={protectedElement(<MapPage />)} />
-        {/* 관리자 관련 */}
         <Route path="/admin" element={protectedElement(<Admin />)} />
       </Routes>
     </NotificationPromptProvider>

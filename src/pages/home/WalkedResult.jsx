@@ -16,12 +16,14 @@ import HOMECAT from "../../assets/home/home_cat.svg";
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 const PET_MODAL_STEP = 136;
 
+/** 저장된 액세스 토큰이 있으면 인증 헤더를 구성한다. */
 const getAuthHeaders = () => {
   const accessToken = localStorage.getItem("accessToken");
 
   return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
 };
 
+/** 비어 있지 않은 조회 조건을 쿼리 문자열로 붙여 API 주소를 만든다. */
 const createApiUrl = (path, query = {}) => {
   const params = new URLSearchParams();
 
@@ -35,6 +37,7 @@ const createApiUrl = (path, query = {}) => {
   return `${API_BASE_URL}${path}${queryString ? `?${queryString}` : ""}`;
 };
 
+/** 문자열이 JSON이면 해석하고 그렇지 않으면 원래 값을 반환한다. */
 const parseMaybeJson = (value) => {
   if (typeof value !== "string") return value;
 
@@ -45,6 +48,7 @@ const parseMaybeJson = (value) => {
   }
 };
 
+/** multipart 응답의 경계와 필드 이름을 해석해 응답 객체를 구성한다. */
 const parseMultipartFormData = async (response) => {
   const contentType = response.headers.get("content-type") || "";
   const boundary =
@@ -83,6 +87,7 @@ const parseMultipartFormData = async (response) => {
   return parsedParts;
 };
 
+/** 응답 형식에 따라 JSON 또는 multipart 본문을 해석한다. */
 const readApiResponse = async (response) => {
   const contentType = response.headers.get("content-type") || "";
 
@@ -93,6 +98,7 @@ const readApiResponse = async (response) => {
   return response.json();
 };
 
+/** 인증 정보를 포함해 데이터를 조회하고 응답 본문을 반환한다. */
 const fetchApiData = async (path, query) => {
   const response = await fetch(createApiUrl(path, query), {
     method: "GET",
@@ -109,6 +115,7 @@ const fetchApiData = async (path, query) => {
   return readApiResponse(response);
 };
 
+/** 인증 정보를 포함해 JSON 데이터를 지정된 HTTP 메서드로 전송한다. */
 const sendApiData = async (path, body, method = "POST") => {
   const response = await fetch(createApiUrl(path), {
     method,
@@ -125,6 +132,7 @@ const sendApiData = async (path, body, method = "POST") => {
   }
 };
 
+/** 반려동물 종류에 맞는 기본 프로필 이미지를 반환한다. */
 const getDefaultPetImage = ({ species, breed }) => {
   const petTypeText = `${species || ""} ${breed || ""}`.toUpperCase();
 
@@ -135,6 +143,7 @@ const getDefaultPetImage = ({ species, breed }) => {
   return HOMEDOG;
 };
 
+/** 반려동물 응답을 화면에서 사용하는 프로필 정보로 변환한다. */
 const normalizePet = (summary, detail = {}) => {
   const species = detail.species || summary.species;
   const breed = detail.breed || summary.breed;
@@ -153,6 +162,7 @@ const normalizePet = (summary, detail = {}) => {
   };
 };
 
+/** 이전 화면에서 전달된 목록이 없을 때 반려동물 정보와 상세 프로필을 조회한다. */
 const fetchPetsFallback = async () => {
   const petsData = await fetchApiData("/api/pets");
   const petSummaries = Array.isArray(petsData?.pets) ? petsData.pets : [];
@@ -172,6 +182,7 @@ const fetchPetsFallback = async () => {
   );
 };
 
+/** 산책 응답을 날짜와 활동 수치, 반려동물이 포함된 표시용 기록으로 변환한다. */
 const normalizeWalk = (walk, fallbackPet) => {
   const durationMinutes = Number(walk.durationMinutes ?? 0);
   const pet = walk.pet || fallbackPet || {};
@@ -194,6 +205,7 @@ const normalizeWalk = (walk, fallbackPet) => {
   };
 };
 
+/** 반려동물별 산책 기록과 미배정 기록을 표시하고 산책 대상 변경을 처리한다. */
 export default function WalkedResult() {
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -214,8 +226,11 @@ export default function WalkedResult() {
   const [errorMessage, setErrorMessage] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
 
+  /** 숫자를 앞자리 0이 포함된 두 자리 문자열로 변환한다. */
   const padTwo = (value) => String(value).padStart(2, "0");
+  /** 활동 수치를 천 단위 구분이 포함된 문자열로 변환한다. */
   const formatCount = (value) => Number(value).toLocaleString();
+  /** 산책 날짜를 화면에 표시할 요일로 변환한다. */
   const getDayLabel = (year, month, date) => {
     const dayLabels = ["일", "월", "화", "수", "목", "금", "토"];
     const dayIndex = new Date(year, month - 1, date).getDay();
@@ -225,6 +240,7 @@ export default function WalkedResult() {
   useEffect(() => {
     let isActive = true;
 
+    /** 반려동물 목록과 전체, 미배정, 반려동물별 산책 기록을 불러온다. */
     const loadWalkedResult = async () => {
       try {
         setIsLoading(true);
@@ -274,7 +290,7 @@ export default function WalkedResult() {
           ),
         );
         setWalksByPetId(Object.fromEntries(petWalkEntries));
-      } catch (error) {
+      } catch {
         setErrorMessage("산책 기록을 불러오지 못했습니다.");
       } finally {
         if (isActive) {
@@ -304,6 +320,7 @@ export default function WalkedResult() {
     pets.findIndex((pet) => pet.id === selectedModalPetId),
     0,
   );
+  /** 산책 기록에 반려동물을 배정하거나 변경하고 목록을 다시 조회한다. */
   const handleConfirmPetSelection = async () => {
     if (!selectedWalkId || !selectedModalPetId || isAssigningWalk) return;
 
@@ -319,7 +336,7 @@ export default function WalkedResult() {
       setIsPetSelectModalOpen(false);
       setSelectedWalkId(null);
       setReloadKey((prev) => prev + 1);
-    } catch (error) {
+    } catch {
       alert("산책 기록의 반려동물 배정에 실패했습니다.");
     } finally {
       setIsAssigningWalk(false);

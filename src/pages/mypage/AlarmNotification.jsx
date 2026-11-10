@@ -10,6 +10,7 @@ import {
   groupNotificationsByDate,
 } from "./notificationFormat.js";
 
+/** 알림 이미지를 표시하고 로딩 실패 시 새로고침 안내를 제공한다. */
 function NotificationImage({ imageUrl, title }) {
   const [hasError, setHasError] = useState(false);
 
@@ -32,6 +33,7 @@ function NotificationImage({ imageUrl, title }) {
   );
 }
 
+/** 날짜별 알림 목록과 새로고침, 추가 조회 및 오류 안내를 표시한다. */
 export default function AlarmNotification() {
   const navigate = useNavigate();
   const contentRef = useRef(null);
@@ -62,17 +64,20 @@ export default function AlarmNotification() {
     return () => observer.disconnect();
   }, [hasNext, isLoading, error, loadMore]);
 
+  /** 알림 목록을 다시 조회하고 목록의 스크롤 위치를 맨 위로 이동한다. */
   const handleRefresh = () => {
     refresh();
     contentRef.current?.scrollTo({ top: 0 });
   };
 
+  /** 만료된 로그인 정보를 지우고 로그인 화면으로 이동한다. */
   const handleLogin = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     navigate("/", { replace: true });
   };
 
+  /** 이전 탐색 기록이 있으면 돌아가고 없으면 홈 화면으로 이동한다. */
   const handleBack = () => {
     if (window.history.state?.idx > 0) {
       navigate(-1);

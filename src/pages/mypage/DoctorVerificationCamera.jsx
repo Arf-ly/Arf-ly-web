@@ -5,6 +5,7 @@ import { isMobileDevice } from "../../utils/device.js";
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
+/** 증빙 이미지를 파일로 변환해 의사 인증 신청을 전송한다. */
 const submitDoctorVerification = async ({ image }) => {
   if (!image) {
     throw new Error("제출할 사진을 선택해주세요.");
@@ -44,6 +45,7 @@ const submitDoctorVerification = async ({ image }) => {
   }
 };
 
+/** 의사 인증 증빙 이미지 선택과 제출 과정을 관리한다. */
 export default function DoctorVerificationCamera() {
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -51,6 +53,7 @@ export default function DoctorVerificationCamera() {
   const submittingRef = useRef(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  /** 선택한 증빙 이미지로 의사 인증을 신청하고 완료 후 마이페이지로 이동한다. */
   const handleComplete = async (image) => {
     if (submittingRef.current) return;
 

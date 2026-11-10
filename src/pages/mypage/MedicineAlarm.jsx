@@ -8,12 +8,14 @@ import MEDICINEEMPTYCAT from "../../assets/mypage/MedicineAlarm/MedicineAlarm_em
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
+/** 저장된 액세스 토큰이 있으면 인증 헤더를 구성한다. */
 const getAuthHeaders = () => {
   const accessToken = localStorage.getItem("accessToken");
 
   return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
 };
 
+/** 복약 알림 시간을 화면에서 사용하는 시각 형식으로 변환한다. */
 const formatReminderTime = (reminderTime) => {
   const [hourText, minuteText = "00"] = String(reminderTime || "00:00").split(
     ":",
@@ -28,6 +30,7 @@ const formatReminderTime = (reminderTime) => {
   };
 };
 
+/** 복약 알림 시각에서 시간 선택기에 사용할 시와 분을 추출한다. */
 const getTimeParts = (reminderTime) => {
   const [hourText = "00", minuteText = "00"] = String(
     reminderTime || "00:00",
@@ -39,6 +42,7 @@ const getTimeParts = (reminderTime) => {
   };
 };
 
+/** 복약 알림 목록과 활성화, 생성, 수정 및 삭제를 관리한다. */
 export default function MedicineAlarm() {
   const navigate = useNavigate();
   const hourColumnRef = useRef(null);
@@ -54,6 +58,7 @@ export default function MedicineAlarm() {
   const [isSubmittingAlarm, setIsSubmittingAlarm] = useState(false);
   const [isDeletingAlarm, setIsDeletingAlarm] = useState(false);
 
+  /** 복약 알림 목록을 조회하고 로딩 상태와 오류 안내를 갱신한다. */
   const fetchAlarms = async ({ showLoading = true } = {}) => {
     try {
       if (showLoading) {
@@ -74,7 +79,7 @@ export default function MedicineAlarm() {
 
       const data = await response.json();
       setAlarms(Array.isArray(data) ? data : data?.alarms || []);
-    } catch (error) {
+    } catch {
       setAlarms([]);
     } finally {
       if (showLoading) {
@@ -101,6 +106,7 @@ export default function MedicineAlarm() {
     });
   }, [isAlarmModalOpen, selectedHour, selectedMinute]);
 
+  /** 선택한 복약 알림의 활성화 상태를 서버와 화면에 반영한다. */
   const handleToggleAlarm = async (alarmId, active) => {
     const nextActive = !active;
     const previousAlarms = alarms;
@@ -127,12 +133,13 @@ export default function MedicineAlarm() {
       if (!response.ok) {
         throw new Error("alarm status update failed");
       }
-    } catch (error) {
+    } catch {
       setAlarms(previousAlarms);
       alert("업로드에 실패했습니다.");
     }
   };
 
+  /** 새 복약 알림 입력값을 초기화하고 등록 창을 연다. */
   const openCreateAlarmModal = () => {
     setSelectedAlarm(null);
     setAlarmTitle("");
@@ -142,6 +149,7 @@ export default function MedicineAlarm() {
     setIsAlarmModalOpen(true);
   };
 
+  /** 기존 복약 알림의 제목과 시각을 채워 수정 창을 연다. */
   const openEditAlarmModal = (alarm) => {
     const { hour, minute } = getTimeParts(alarm.reminderTime);
 
@@ -153,10 +161,12 @@ export default function MedicineAlarm() {
     setIsAlarmModalOpen(true);
   };
 
+  /** 복약 알림 등록 또는 수정 창을 닫는다. */
   const closeAlarmModal = () => {
     setIsAlarmModalOpen(false);
   };
 
+  /** 시간 선택기의 스크롤 위치를 선택한 시로 반영한다. */
   const handleHourScroll = (event) => {
     const nextHour = Math.min(
       23,
@@ -166,6 +176,7 @@ export default function MedicineAlarm() {
     setSelectedHour(nextHour);
   };
 
+  /** 시간 선택기의 스크롤 위치를 선택한 분으로 반영한다. */
   const handleMinuteScroll = (event) => {
     const nextMinute = Math.min(
       59,
@@ -185,6 +196,7 @@ export default function MedicineAlarm() {
       selectedMinute !== selectedAlarmTime.minute
     : alarmTitle.trim() !== "";
 
+  /** 복약 알림 입력을 확인하고 새 알림을 등록하거나 기존 알림을 수정한다. */
   const handleDoneClick = async () => {
     if (!isDoneActive || isSubmittingAlarm) return;
 
@@ -218,7 +230,7 @@ export default function MedicineAlarm() {
 
         await fetchAlarms({ showLoading: false });
         closeAlarmModal();
-      } catch (error) {
+      } catch {
         alert("알람을 수정하지 못했습니다.");
       } finally {
         setIsSubmittingAlarm(false);
@@ -247,13 +259,14 @@ export default function MedicineAlarm() {
 
       await fetchAlarms({ showLoading: false });
       closeAlarmModal();
-    } catch (error) {
+    } catch {
       alert("알람을 등록하지 못했습니다.");
     } finally {
       setIsSubmittingAlarm(false);
     }
   };
 
+  /** 선택한 복약 알림을 서버와 화면 목록에서 삭제한다. */
   const handleDeleteAlarm = async () => {
     if (!selectedAlarm || isDeletingAlarm) return;
 
@@ -277,7 +290,7 @@ export default function MedicineAlarm() {
 
       await fetchAlarms({ showLoading: false });
       closeAlarmModal();
-    } catch (error) {
+    } catch {
       alert("알람을 삭제하지 못했습니다.");
     } finally {
       setIsDeletingAlarm(false);

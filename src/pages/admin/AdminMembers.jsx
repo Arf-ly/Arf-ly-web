@@ -8,6 +8,7 @@ import AdminPagination from "./AdminPagination";
 import BackIcon from "../../assets/community/back.svg";
 import NextIcon from "../../assets/mypage/mypage_next_arrow.svg";
 
+/** 회원 이용 상태를 화면에 표시할 문구로 변환한다. */
 const getMemberStatusLabel = (status) => {
 	if (status === "ACTIVE") {
 		return "활동 중";
@@ -19,6 +20,7 @@ const getMemberStatusLabel = (status) => {
 	return status || "-";
 };
 
+/** 회원 권한을 화면에 표시할 문구로 변환한다. */
 const getMemberRoleLabel = (role) => {
 	if (role === "USER") {
 		return "일반 회원";
@@ -34,6 +36,7 @@ const getMemberRoleLabel = (role) => {
 	return role || "-";
 };
 
+/** 로그인 제공자 유형을 화면에 표시할 이름으로 변환한다. */
 const getSocialTypeLabel = (socialType) => {
 	if (socialType === "LOCAL") {
 		return "일반 로그인";
@@ -53,6 +56,7 @@ const getSocialTypeLabel = (socialType) => {
 	return socialType || "-";
 };
 
+/** 회원 목록과 상세 조회, 이용 정지 및 해제 화면을 관리한다. */
 function AdminMembers({ actionSubmittingRef, isActionSubmitting, setIsActionSubmitting }) {
 	const navigate = useNavigate();
 	const [currentPage, setCurrentPage] = useState(1);
@@ -80,6 +84,7 @@ function AdminMembers({ actionSubmittingRef, isActionSubmitting, setIsActionSubm
 	useEffect(() => {
 		let isCancelled = false;
 
+		/** 회원 목록을 불러와 로딩 상태와 조회 결과를 갱신한다. */
 		const fetchMemberList = async () => {
 			try {
 				setIsMemberLoading(true);
@@ -136,6 +141,7 @@ function AdminMembers({ actionSubmittingRef, isActionSubmitting, setIsActionSubm
 
 		let isCancelled = false;
 
+		/** 선택한 회원의 상세 정보를 불러와 화면 상태에 반영한다. */
 		const fetchMemberDetail = async () => {
 			try {
 				setIsMemberDetailLoading(true);
@@ -174,6 +180,7 @@ function AdminMembers({ actionSubmittingRef, isActionSubmitting, setIsActionSubm
 		};
 	}, [selectedMemberId, memberRefreshKey]);
 
+	/** 회원 상세 선택을 초기화하고 회원 목록으로 돌아간다. */
 	const handleBackClick = () => {
 		if (actionSubmittingRef.current) {
 			return;
@@ -183,6 +190,7 @@ function AdminMembers({ actionSubmittingRef, isActionSubmitting, setIsActionSubm
 		setMemberDetailError("");
 	};
 
+	/** 선택한 회원의 상세 조회를 시작하고 이전 상세 상태를 초기화한다. */
 	const handleMemberClick = (memberId) => {
 		if (actionSubmittingRef.current) {
 			return;
@@ -194,6 +202,7 @@ function AdminMembers({ actionSubmittingRef, isActionSubmitting, setIsActionSubm
 		setIsMemberDetailLoading(true);
 	};
 
+	/** 관리 작업이 진행 중이지 않을 때 확인 모달을 연다. */
 	const handleModalOpen = (type) => {
 		if (actionSubmittingRef.current) {
 			return;
@@ -202,6 +211,7 @@ function AdminMembers({ actionSubmittingRef, isActionSubmitting, setIsActionSubm
 		setModalType(type);
 	};
 
+	/** 관리 작업이 진행 중이지 않을 때 확인 모달을 닫는다. */
 	const handleModalClose = () => {
 		if (actionSubmittingRef.current) {
 			return;
@@ -210,6 +220,7 @@ function AdminMembers({ actionSubmittingRef, isActionSubmitting, setIsActionSubm
 		setModalType(null);
 	};
 
+	/** 확인한 회원 정지 또는 해제를 실행하고 조회 상태를 갱신한다. */
 	const handleConfirmClick = async () => {
 		if (actionSubmittingRef.current) {
 			return;
