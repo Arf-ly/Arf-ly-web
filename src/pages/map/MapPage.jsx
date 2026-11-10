@@ -27,6 +27,7 @@ const DEFAULT_CENTER = {
   lng: DEFAULT_LOCATION.lng,
 };
 
+/** 병원 정보에서 사진 요청에 사용할 이름 목록을 추출한다. */
 const getPhotoNames = (imageUrl) => {
   if (Array.isArray(imageUrl)) {
     return imageUrl.filter(Boolean);
@@ -39,6 +40,7 @@ const getPhotoNames = (imageUrl) => {
   return [];
 };
 
+/** 병원의 영업시간 정보에서 오늘에 해당하는 안내를 추출한다. */
 const getTodayOperatingTime = (operating) => {
   if (!Array.isArray(operating) || operating.length === 0) {
     return "운영시간 정보 없음";
@@ -62,6 +64,7 @@ const getTodayOperatingTime = (operating) => {
   return todayOperatingTime;
 };
 
+/** 동물병원 지도와 목록, 상세 정보 시트의 선택 및 이동을 관리한다. */
 function MapPage() {
   const [hospitals, setHospitals] = useState([]);
   const [selectedHospital, setSelectedHospital] = useState(null);
@@ -85,6 +88,7 @@ function MapPage() {
     fetchHospitals();
   }, []);
 
+  /** 동물병원 목록을 조회하고 지도에 사용할 병원 정보를 구성한다. */
   const fetchHospitals = async () => {
     try {
       setIsLoading(true);
@@ -119,6 +123,7 @@ function MapPage() {
     }
   };
 
+  /** 선택한 병원의 상세 정보를 조회하고 지도와 시트에 반영한다. */
   const handleHospitalClick = async (hospital) => {
     try {
       setCenter({
@@ -143,6 +148,7 @@ function MapPage() {
     }
   };
 
+  /** 지도를 기준 위치로 되돌리고 병원 선택 상태를 초기화한다. */
   const handleReturnToBase = () => {
     setSelectedHospital(null);
     setIsDetailMode(false);
@@ -150,6 +156,7 @@ function MapPage() {
     setCenter(baseCenter);
   };
 
+  /** 병원 정보 시트를 움직이기 위한 포인터 시작 위치를 저장한다. */
   const handleSheetPointerDown = (event) => {
     touchStartY.current = event.clientY;
     isDraggingSheet.current = false;
@@ -159,6 +166,7 @@ function MapPage() {
     }
   };
 
+  /** 포인터 이동 방향과 거리에 따라 병원 정보 시트를 펼치거나 접는다. */
   const handleSheetPointerMove = (event) => {
     if (isDetailMode) {
       return;
@@ -179,6 +187,7 @@ function MapPage() {
     }
   };
 
+  /** 드래그 여부를 확인하고 시트 손잡이 클릭으로 펼침 상태를 전환한다. */
   const handleSheetHandleClick = () => {
     if (isDetailMode || isDraggingSheet.current) {
       return;
@@ -294,6 +303,7 @@ function MapPage() {
   );
 }
 
+/** 병원 목록과 선택 가능한 병원 요약 정보를 표시한다. */
 function HospitalList({ hospitals, isLoading, onHospitalClick }) {
   if (isLoading) {
     return (
@@ -348,6 +358,7 @@ function HospitalList({ hospitals, isLoading, onHospitalClick }) {
   );
 }
 
+/** 선택한 병원의 사진, 위치, 연락처와 영업 정보를 표시한다. */
 function HospitalDetail({ hospital, onClose }) {
   const todayOperatingTime = getTodayOperatingTime(hospital.operating);
 
@@ -399,6 +410,7 @@ function HospitalDetail({ hospital, onClose }) {
   );
 }
 
+/** 병원 사진 목록 또는 기본 이미지를 표시한다. */
 function HospitalImageList({ imageUrl, alt }) {
   const photoNames = getPhotoNames(imageUrl);
 
@@ -424,6 +436,7 @@ function HospitalImageList({ imageUrl, alt }) {
   );
 }
 
+/** 병원 사진을 불러와 표시하고 실패 시 기본 이미지로 대체한다. */
 function HospitalImage({ photoName, alt, className }) {
   const [imageSrc, setImageSrc] = useState("");
   const [isLoadingImage, setIsLoadingImage] = useState(false);
@@ -433,6 +446,7 @@ function HospitalImage({ photoName, alt, className }) {
     let isActive = true;
     let objectUrl = "";
 
+    /** 병원 사진 Blob을 조회하고 화면이 유효하면 표시용 주소를 생성한다. */
     const fetchImage = async () => {
       setImageSrc("");
       setHasImageError(false);

@@ -49,9 +49,11 @@ const initialForm = {
   memo: "",
 };
 
+/** 서버의 반려동물 종류를 등록 화면의 선택 값으로 변환한다. */
 const getPetTypeFromSpecies = (species) =>
   String(species).toUpperCase() === "CAT" ? "cat" : "dog";
 
+/** 기존 반려동물 정보를 수정 폼의 초기 입력값으로 변환한다. */
 const createEditForm = (pet = {}) => ({
   name: pet.name ? String(pet.name) : "",
   age: pet.age ? String(pet.age) : "",
@@ -62,6 +64,7 @@ const createEditForm = (pet = {}) => ({
   memo: pet.note || "",
 });
 
+/** 품종 조회 응답에서 비어 있지 않은 품종 이름 목록을 추출한다. */
 const normalizeBreedList = (data) => {
   const list = Array.isArray(data) ? data : data?.breeds || data?.data || [];
 
@@ -73,6 +76,7 @@ const normalizeBreedList = (data) => {
     .filter(Boolean);
 };
 
+/** 반려동물 종류, 기본 정보와 프로필 입력을 받아 등록 또는 수정을 진행한다. */
 const PetRegister = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -128,15 +132,18 @@ const PetRegister = () => {
     form.gender &&
     form.breed.trim();
 
+  /** 지정한 반려동물 입력값을 갱신하고 해당 항목의 오류를 초기화한다. */
   const updateForm = (field, value) => {
     setForm((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
+  /** 숫자 이외의 문자를 제거한 뒤 입력값을 갱신한다. */
   const updateNumericForm = (field, value) => {
     updateForm(field, value.replace(/[^0-9]/g, ""));
   };
 
+  /** 체중에 사용할 숫자와 소수점만 남겨 입력값을 갱신한다. */
   const updateWeightForm = (value) => {
     const numericValue = value
       .replace(/[^0-9.]/g, "")
@@ -145,11 +152,13 @@ const PetRegister = () => {
     updateForm("weight", numericValue);
   };
 
+  /** 입력한 나이를 출생 연도의 1월 1일 문자열로 변환한다. */
   const getBirthFromAge = (age) => {
     const birthYear = new Date().getFullYear() - Number(age);
     return `${birthYear}-01-01`;
   };
 
+  /** 반려동물 입력값을 서버가 요구하는 자료형과 필드로 구성한다. */
   const createPetPayload = () => ({
     neutered: form.neutered === "yes",
     sex: form.gender === "male" ? "MALE" : "FEMALE",
@@ -162,6 +171,7 @@ const PetRegister = () => {
     breeds: form.breed.trim(),
   });
 
+  /** 업로드할 프로필 파일을 선택하거나 기본 이미지에서 파일을 생성한다. */
   const createProfileImageFile = async () => {
     if (profileFile) return profileFile;
     if (isEditFlow && profileImage === editPet?.img) return null;
@@ -177,6 +187,7 @@ const PetRegister = () => {
     });
   };
 
+  /** 반려동물 정보와 프로필 파일을 multipart 전송 본문으로 구성한다. */
   const createPetFormData = async () => {
     const data = createPetPayload();
     const imageFile = await createProfileImageFile();
@@ -196,15 +207,19 @@ const PetRegister = () => {
     return formData;
   };
 
+  /** 선택한 중성화 여부를 표시용 문구로 반환한다. */
   const getNeuteredLabel = () =>
     form.neutered === "yes" ? "중성화 완료" : "중성화 미완료";
 
+  /** 선택한 반려동물 성별에 맞는 아이콘을 반환한다. */
   const getGenderIcon = () => (form.gender === "male" ? MaleIcon : FemaleIcon);
 
+  /** 등록 진입 경로에 맞는 완료 화면으로 이동한다. */
   const finishRegister = () => {
     navigate(finishPath, { replace: true });
   };
 
+  /** 추가 반려동물을 입력할 수 있도록 등록 상태를 초기화한다. */
   const handleAddAnotherPet = () => {
     setStep("type");
     setPetType("");
@@ -220,6 +235,7 @@ const PetRegister = () => {
     setBreedError("");
   };
 
+  /** 등록 단계와 진입 경로에 따라 이전 입력 단계 또는 화면으로 돌아간다. */
   const handleBack = () => {
     if (step === "complete") {
       finishRegister();
@@ -249,6 +265,7 @@ const PetRegister = () => {
     navigate(-1);
   };
 
+  /** 선택한 반려동물 종류에 따라 정보 입력으로 이동하거나 등록을 마친다. */
   const handleTypeNext = () => {
     if (!petType) return;
     if (petType === "none") {
@@ -258,6 +275,7 @@ const PetRegister = () => {
     setStep("info");
   };
 
+  /** 반려동물 종류를 선택하고 이전 품종 선택과 조회 상태를 초기화한다. */
   const handlePetTypeSelect = (nextPetType) => {
     setPetType(nextPetType);
     updateForm("breed", "");
@@ -266,6 +284,7 @@ const PetRegister = () => {
     setBreedError("");
   };
 
+  /** 필수 반려동물 입력 항목을 검증하고 항목별 오류를 표시한다. */
   const validateForm = () => {
     const nextErrors = {};
     if (!form.name.trim()) {
@@ -288,6 +307,7 @@ const PetRegister = () => {
     return Object.keys(nextErrors).length === 0;
   };
 
+  /** 입력값과 로그인 상태를 확인한 뒤 반려동물을 등록하거나 수정한다. */
   const handleInfoNext = async () => {
     if (!validateForm()) return;
 
@@ -333,6 +353,7 @@ const PetRegister = () => {
     }
   };
 
+  /** 선택한 프로필 파일과 미리보기를 반영하고 이미지 선택 창을 닫는다. */
   const handleProfileFileChange = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -343,6 +364,7 @@ const PetRegister = () => {
     setProfileSheetOpen(false);
   };
 
+  /** 중복되지 않은 알레르기 항목을 추가하고 입력값을 비운다. */
   const addAllergy = () => {
     const nextAllergy = allergyInput.trim();
     if (!nextAllergy) return;
@@ -356,15 +378,18 @@ const PetRegister = () => {
     setAllergyInput("");
   };
 
+  /** 입력 중인 알레르기를 추가한 뒤 알레르기 입력 시트를 닫는다. */
   const closeAllergySheet = () => {
     addAllergy();
     setAllergySheetOpen(false);
   };
 
+  /** 선택한 알레르기 항목을 목록에서 제거한다. */
   const removeAllergy = (target) => {
     setAllergies((prev) => prev.filter((allergy) => allergy !== target));
   };
 
+  /** 선택한 품종을 등록 폼과 검색 입력에 반영한다. */
   const selectBreed = (breed) => {
     updateForm("breed", breed);
     setBreedSearch(breed);
@@ -373,6 +398,7 @@ const PetRegister = () => {
   useEffect(() => {
     if (step !== "breed" || !petType || petType === "none") return;
 
+    /** 선택한 반려동물 종류에 맞는 품종을 조회하고 목록과 오류 상태를 갱신한다. */
     const fetchBreeds = async () => {
       const accessToken = localStorage.getItem("accessToken");
 

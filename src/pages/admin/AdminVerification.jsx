@@ -7,6 +7,7 @@ import AdminModal from "./AdminModal";
 import BackIcon from "../../assets/community/back.svg";
 import NextIcon from "../../assets/mypage/mypage_next_arrow.svg";
 
+/** 작성 일시를 화면에서 사용하는 날짜와 시간 형식으로 변환한다. */
 const formatDate = (createdAt) => {
 	if (!createdAt) {
 		return "";
@@ -27,6 +28,7 @@ const formatDate = (createdAt) => {
 	return `${year}.${month}.${day} ${hour}:${minute}`;
 };
 
+/** 의사 인증 신청의 조회와 증빙 확인, 승인 및 반려를 관리한다. */
 function AdminVerification({ selectedVerificationId, setSelectedVerificationId, actionSubmittingRef, isActionSubmitting, setIsActionSubmitting }) {
 	const [verifications, setVerifications] = useState([]);
 	const [selectedVerification, setSelectedVerification] = useState(null);
@@ -49,6 +51,7 @@ function AdminVerification({ selectedVerificationId, setSelectedVerificationId, 
 	useEffect(() => {
 		let isCancelled = false;
 
+		/** 의사 인증 신청 목록을 불러와 화면 상태에 반영한다. */
 		const fetchVerificationList = async () => {
 			try {
 				setIsVerificationLoading(true);
@@ -90,6 +93,7 @@ function AdminVerification({ selectedVerificationId, setSelectedVerificationId, 
 
 		let isCancelled = false;
 
+		/** 선택한 의사 인증 신청의 상세 정보와 증빙을 불러온다. */
 		const fetchVerificationDetail = async () => {
 			try {
 				setIsVerificationDetailLoading(true);
@@ -128,6 +132,7 @@ function AdminVerification({ selectedVerificationId, setSelectedVerificationId, 
 		};
 	}, [selectedVerificationId, verificationDetailRefreshKey]);
 
+	/** 인증 신청 상세 선택을 초기화하고 신청 목록으로 돌아간다. */
 	const handleBackClick = () => {
 		if (actionSubmittingRef.current) {
 			return;
@@ -138,6 +143,7 @@ function AdminVerification({ selectedVerificationId, setSelectedVerificationId, 
 		setVerificationDetailError("");
 	};
 
+	/** 선택한 의사 인증 신청의 상세 조회를 시작한다. */
 	const handleVerificationClick = (verificationId) => {
 		if (actionSubmittingRef.current) {
 			return;
@@ -149,6 +155,7 @@ function AdminVerification({ selectedVerificationId, setSelectedVerificationId, 
 		setIsVerificationDetailLoading(true);
 	};
 
+	/** 의사 인증 상세 정보를 다시 조회해 증빙 이미지를 갱신한다. */
 	const handleImageRefreshClick = () => {
 		if (actionSubmittingRef.current) {
 			return;
@@ -158,6 +165,7 @@ function AdminVerification({ selectedVerificationId, setSelectedVerificationId, 
 		setVerificationDetailRefreshKey((key) => key + 1);
 	};
 
+	/** 관리 작업이 진행 중이지 않을 때 확인 모달을 연다. */
 	const handleModalOpen = (type) => {
 		if (actionSubmittingRef.current) {
 			return;
@@ -167,6 +175,7 @@ function AdminVerification({ selectedVerificationId, setSelectedVerificationId, 
 		setModalType(type);
 	};
 
+	/** 관리 작업이 진행 중이지 않을 때 확인 모달을 닫는다. */
 	const handleModalClose = () => {
 		if (actionSubmittingRef.current) {
 			return;
@@ -176,6 +185,7 @@ function AdminVerification({ selectedVerificationId, setSelectedVerificationId, 
 		setReason("");
 	};
 
+	/** 확인한 의사 인증 승인 또는 반려를 실행하고 신청 목록을 갱신한다. */
 	const handleConfirmClick = async () => {
 		if (actionSubmittingRef.current || selectedVerificationId === null || !selectedVerification) {
 			return;

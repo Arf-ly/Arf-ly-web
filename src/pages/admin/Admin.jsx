@@ -18,6 +18,7 @@ import MemberActiveIcon from "../../assets/bottom_tab_bar/my_active.svg";
 import CheckIcon from "../../assets/terms/gray_check_circle.svg";
 import CheckActiveIcon from "../../assets/admin/check_active.svg";
 
+/** 관리자 탭 이동과 처리 중 상태를 관리하고 선택한 관리 화면을 표시한다. */
 function Admin() {
 	const navigate = useNavigate();
 	const actionSubmittingRef = useRef(false);
@@ -27,6 +28,7 @@ function Admin() {
 	const [selectedVerificationId, setSelectedVerificationId] = useState(null);
 	const isVerificationDetailOpen = activeTab === "verifications" && selectedVerificationId !== null;
 
+	/** 관리 작업이 진행 중이지 않을 때 상세 선택을 초기화하고 탭을 전환한다. */
 	const handleTabClick = (tab) => {
 		if (actionSubmittingRef.current) {
 			return;
@@ -37,6 +39,7 @@ function Admin() {
 		setTabKey((key) => key + 1);
 	};
 
+	/** 관리 작업이 진행 중이지 않을 때 홈 화면으로 이동한다. */
 	const handleHomeClick = () => {
 		if (actionSubmittingRef.current) {
 			return;

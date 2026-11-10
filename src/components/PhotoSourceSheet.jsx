@@ -3,6 +3,7 @@ import CameraIcon from "../assets/home/home_camera.svg";
 import ImportIcon from "../assets/home/home_get.svg";
 import "./PhotoSourceSheet.css";
 
+/** 사진 촬영과 파일 가져오기 선택지를 하단 시트에 표시한다. */
 export default function PhotoSourceSheet({ onClose, onCapture, onImport }) {
   return (
     <div className="photo-source-overlay" onClick={onClose}>

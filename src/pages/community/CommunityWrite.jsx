@@ -8,6 +8,7 @@ import BackIcon from "../../assets/community/back.svg";
 import ImageIcon from "../../assets/community/image.svg";
 import ExitImageIcon from "../../assets/community/exit_image.svg";
 
+/** 새 게시글의 제목과 내용, 첨부 파일 입력 및 등록을 제공한다. */
 function CommunityWrite() {
 	const navigate = useNavigate();
 	const fileInputRef = useRef(null);
@@ -29,10 +30,12 @@ function CommunityWrite() {
 		};
 	}, [previewItems]);
 
+	/** 게시글 작성 화면에서 이전 화면으로 돌아간다. */
 	const handleBackClick = () => {
 		navigate(-1);
 	};
 
+	/** 게시글 제목 입력값과 내용에 맞는 입력창 높이를 갱신한다. */
 	const handleTitleChange = (event) => {
 		setTitle(event.target.value);
 
@@ -40,10 +43,12 @@ function CommunityWrite() {
 		event.target.style.height = `${event.target.scrollHeight}px`;
 	};
 
+	/** 게시글에 첨부할 파일을 선택하는 창을 연다. */
 	const handleFileButtonClick = () => {
 		fileInputRef.current.click();
 	};
 
+	/** 이름과 크기, 수정 시각을 비교해 중복 첨부 파일인지 확인한다. */
 	const isSameFile = (fileA, fileB) => {
 		return (
 			fileA.name === fileB.name &&
@@ -52,6 +57,7 @@ function CommunityWrite() {
 		);
 	};
 
+	/** 게시글에 첨부할 수 있는 파일 형식인지 확인한다. */
 	const isAllowedFile = (file) => {
 		const allowedTypes = [
 			"image/png",
@@ -65,6 +71,7 @@ function CommunityWrite() {
 		return allowedTypes.includes(file.type);
 	};
 
+	/** 첨부 파일마다 미리보기 주소와 식별 정보를 생성한다. */
 	const makePreviewItems = (targetFiles) => {
 		return targetFiles.map((file) => ({
 			url: URL.createObjectURL(file),
@@ -73,6 +80,7 @@ function CommunityWrite() {
 		}));
 	};
 
+	/** 파일 형식과 중복, 개수를 확인하고 첨부 목록에 추가한다. */
 	const handleFileChange = (event) => {
 		const selectedFiles = Array.from(event.target.files);
 
@@ -114,6 +122,7 @@ function CommunityWrite() {
 		event.target.value = "";
 	};
 
+	/** 선택한 첨부 파일을 제거하고 관련 미리보기 주소를 정리한다. */
 	const handleRemoveFile = (removeIndex) => {
 		const nextFiles = files.filter((_, index) => index !== removeIndex);
 
@@ -123,6 +132,7 @@ function CommunityWrite() {
 		setPreviewItems(makePreviewItems(nextFiles));
 	};
 
+	/** 입력한 게시글과 첨부 파일을 등록하고 커뮤니티 목록으로 이동한다. */
 	const handleSubmit = async () => {
 		setIsSubmitted(true);
 

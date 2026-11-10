@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useRevalidator } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./IoTRegister.css";
 
 import IOTREGISTERBACK from "../../../assets/login/system/backbtn.svg";
@@ -12,6 +12,7 @@ import IOTREGISTERDEVICE from "../../../assets/mypage/IotRegistration/IoTRegiste
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 const PICO_URL = import.meta.env.VITE_PICO_URL;
 
+/** 기기의 와이파이 연결 설정과 계정에 대한 IoT 기기 등록을 진행한다. */
 const IoTRegister = () => {
   const navigate = useNavigate();
 
@@ -22,6 +23,7 @@ const IoTRegister = () => {
   const [picoUid, setPicoUid] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  /** 기기 등록 단계에 따라 와이파이 입력 또는 이전 화면으로 돌아간다. */
   const handleGoBack = () => {
     if (step === 2) {
       setStep(1);
@@ -30,6 +32,7 @@ const IoTRegister = () => {
     }
   };
 
+  /** 입력한 와이파이 정보를 기기에 전달하고 기기 식별자를 받아온다. */
   const handleRegister = async (e) => {
     e.preventDefault();
     if (!wifiId || !password) {
@@ -52,7 +55,7 @@ const IoTRegister = () => {
       setPicoUid(data.uid);
       setStep(2);
       setIsLoading(false);
-    } catch (error) {
+    } catch {
       alert(
         "전송 실패 😢 스마트폰이 기기의 와이파이에 제대로 연결되어 있는지, 모바일 데이터(LTE/5G)가 꺼져 있는지 확인해 주세요.",
       );
@@ -60,6 +63,7 @@ const IoTRegister = () => {
     }
   };
 
+  /** 기기 식별자를 현재 계정에 등록한 뒤 마이페이지로 이동한다. */
   const handlePicoUid = async () => {
     const accessToken = localStorage.getItem("accessToken");
     setIsLoading(true);
@@ -78,11 +82,11 @@ const IoTRegister = () => {
         throw new Error("IoT 기기 등록 실패");
       }
       const text = await response.text();
-      const result = text ? JSON.parse(text) : {};
-
+      // 빈 응답은 허용하되 잘못된 JSON 응답은 기존 실패 처리로 보낸다.
+      if (text) JSON.parse(text);
 
       navigate("/mypage");
-    } catch (error) {
+    } catch {
       alert(
         "서버에 기기를 등록하는 데 실패했습니다. 잠시 후 다시 시도해주세요.",
       );

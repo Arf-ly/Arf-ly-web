@@ -17,6 +17,7 @@ const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
 const weekLabels = ["일", "월", "화", "수", "목", "금", "토"];
 
+/** 출생 연도에서 현재 연도 기준의 나이를 계산한다. */
 const getAgeFromBirth = (birth) => {
   if (!birth) return 0;
 
@@ -26,6 +27,7 @@ const getAgeFromBirth = (birth) => {
   return Math.max(new Date().getFullYear() - birthYear, 0);
 };
 
+/** 날짜를 한국어 연월일 형식으로 변환한다. */
 const formatKoreanDate = (dateValue) => {
   const date = dateValue ? new Date(dateValue) : new Date();
   const safeDate = Number.isNaN(date.getTime()) ? new Date() : date;
@@ -37,12 +39,15 @@ const formatKoreanDate = (dateValue) => {
   return `${year}년 ${month}월 ${day}일 (${weekday})`;
 };
 
+/** 서버의 성별 값을 화면에서 사용하는 구분 값으로 변환한다. */
 const normalizeSex = (sex) =>
   String(sex).toUpperCase() === "FEMALE" ? "female" : "male";
 
+/** 반려동물 종류에 맞는 기본 프로필 이미지를 반환한다. */
 const getDefaultPetImage = (species) =>
   String(species).toUpperCase() === "CAT" ? HOMECAT : HOMEDOG;
 
+/** 문자열이 JSON이면 해석하고 그렇지 않으면 원래 값을 반환한다. */
 const parseMaybeJson = (value) => {
   if (typeof value !== "string") return value;
 
@@ -53,6 +58,7 @@ const parseMaybeJson = (value) => {
   }
 };
 
+/** multipart 응답의 경계와 필드 이름을 해석해 응답 객체를 구성한다. */
 const parseMultipartFormData = async (response) => {
   const contentType = response.headers.get("content-type") || "";
   const boundary =
@@ -91,6 +97,7 @@ const parseMultipartFormData = async (response) => {
   return parsedParts;
 };
 
+/** 반려동물의 지정된 진단 보고서를 조회한다. */
 const fetchDiagnosisReport = async (reportId) => {
   const accessToken = localStorage.getItem("accessToken");
   const response = await fetch(
@@ -111,6 +118,7 @@ const fetchDiagnosisReport = async (reportId) => {
   return readApiResponse(response);
 };
 
+/** 응답 형식에 따라 JSON 또는 multipart 본문을 해석한다. */
 const readApiResponse = async (response) => {
   const contentType = response.headers.get("content-type") || "";
 
@@ -121,6 +129,7 @@ const readApiResponse = async (response) => {
   return response.json();
 };
 
+/** 이미지 데이터 URL을 업로드 가능한 파일로 변환한다. */
 const dataUrlToFile = async (dataUrl, fileName = "diagnosis-image.png") => {
   const response = await fetch(dataUrl);
   const blob = await response.blob();
@@ -131,6 +140,7 @@ const dataUrlToFile = async (dataUrl, fileName = "diagnosis-image.png") => {
   });
 };
 
+/** 선택한 반려동물과 이미지를 전송해 진단 보고서를 생성한다. */
 const createDiagnosisReport = async ({ petId, image }) => {
   if (!petId) {
     throw new Error("반려동물 정보를 찾을 수 없습니다.");
@@ -162,6 +172,7 @@ const createDiagnosisReport = async ({ petId, image }) => {
   return readApiResponse(response);
 };
 
+/** 진단 관리 안내문을 번호별 제목과 본문으로 나눈다. */
 const parseManagement = (management) => {
   if (!management) return [];
 
@@ -204,6 +215,7 @@ const parseManagement = (management) => {
   return sections;
 };
 
+/** 진단 보고서 생성 또는 조회 결과와 반려동물 관리 안내를 표시한다. */
 export default function DiseaseCheck() {
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -226,6 +238,7 @@ export default function DiseaseCheck() {
     if (hasRequestedDiagnosis.current) return;
     hasRequestedDiagnosis.current = true;
 
+    /** 진입 정보에 따라 진단 보고서를 생성하거나 조회하고 화면에 반영한다. */
     const loadDiagnosisReport = async () => {
       try {
         setIsLoading(true);

@@ -8,6 +8,7 @@ import pinkCheck from "../../../assets/terms/pink_check.svg";
 import nextIcon from "../../../assets/terms/next.svg";
 import backbtn from "../../../assets/terms/backbtn.svg";
 
+/** 약관 본문과 개별 동의 항목을 표시하고 필수 동의 여부를 확인한다. */
 const Terms = ({ onComplete }) => {
   const [detailView, setDetailView] = useState(null);
   const [allAgreed, setAllAgreed] = useState(false);
@@ -184,6 +185,7 @@ AI 분석 정확도 및 품질 향상
     },
   ];
 
+  /** 전체 약관의 동의 상태를 한 번에 전환한다. */
   const handleAllAgree = () => {
     const newVal = !allAgreed;
     setAllAgreed(newVal);
@@ -194,14 +196,15 @@ AI 분석 정확도 및 품질 향상
     setAgreements(newAgreements);
   };
 
+  /** 선택한 약관의 동의 상태를 전환한다. */
   const handleToggle = (id) => {
     const newAgreements = { ...agreements, [id]: !agreements[id] };
     setAgreements(newAgreements);
     setAllAgreed(Object.values(newAgreements).every((val) => val));
   };
 
+  /** 필수 약관 동의를 확인하고 완료 콜백에 동의 결과를 전달한다. */
   const handleNextBtn = () => {
-    // 필수 약관 동의 확인
     if (
       !agreements.service ||
       !agreements.privacy ||

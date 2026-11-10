@@ -24,12 +24,14 @@ import PhotoSourceSheet from "../../components/PhotoSourceSheet.jsx";
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
+/** 저장된 액세스 토큰이 있으면 인증 헤더를 구성한다. */
 const getAuthHeaders = () => {
   const accessToken = localStorage.getItem("accessToken");
 
   return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
 };
 
+/** 인증 정보를 포함해 데이터를 조회하고 응답 본문을 반환한다. */
 const fetchApiData = async (path) => {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     method: "GET",
@@ -46,6 +48,7 @@ const fetchApiData = async (path) => {
   return response.json();
 };
 
+/** 출생 연도에서 현재 연도 기준의 나이를 계산한다. */
 const getAgeFromBirth = (birth) => {
   if (!birth) return 0;
 
@@ -55,12 +58,15 @@ const getAgeFromBirth = (birth) => {
   return Math.max(new Date().getFullYear() - birthYear, 0);
 };
 
+/** 서버의 성별 값을 화면에서 사용하는 구분 값으로 변환한다. */
 const normalizeSex = (sex) =>
   String(sex).toUpperCase() === "FEMALE" ? "female" : "male";
 
+/** 반려동물 종류에 맞는 기본 프로필 이미지를 반환한다. */
 const getDefaultPetImage = (species) =>
   String(species).toUpperCase() === "CAT" ? HOMECAT : HOMEDOG;
 
+/** 사용자 응답을 프로필과 활동 개수 표시용 정보로 정리한다. */
 const normalizeUserInfo = (data) => ({
   ...data,
   nickname: data?.nickname || "",
@@ -71,6 +77,7 @@ const normalizeUserInfo = (data) => ({
   dibsCount: Number(data?.likeCounts ?? 0),
 });
 
+/** 반려동물 응답을 화면에서 사용하는 프로필 정보로 변환한다. */
 const normalizePet = (summary, detail = {}) => {
   const species = detail.species || summary.species;
 
@@ -93,6 +100,7 @@ const normalizePet = (summary, detail = {}) => {
   };
 };
 
+/** 사용자 프로필, 반려동물과 복약 알림을 조회하고 계정 및 인증 기능을 제공한다. */
 export default function MyPage() {
   const navigate = useNavigate();
   const doctorFileInputRef = useRef(null);
@@ -104,6 +112,7 @@ export default function MyPage() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  /** 의사 인증용 사진 형식을 확인하고 증빙 촬영 화면으로 전달한다. */
   const handleDoctorPhotoImport = (event) => {
     const file = event.target.files?.[0];
     event.target.value = "";
@@ -125,6 +134,7 @@ export default function MyPage() {
     reader.readAsDataURL(file);
   };
 
+  /** 서버 로그아웃 후 저장된 인증 정보를 지우고 로그인 화면으로 이동한다. */
   const handleLogout = async () => {
     if (isLoggingOut) return;
 
@@ -155,7 +165,7 @@ export default function MyPage() {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       navigate("/", { replace: true });
-    } catch (error) {
+    } catch {
       alert("로그아웃에 실패했습니다.");
     } finally {
       setIsLoggingOut(false);
@@ -165,6 +175,7 @@ export default function MyPage() {
   useEffect(() => {
     let isActive = true;
 
+    /** 사용자 프로필과 반려동물 상세 정보, 복약 알림을 함께 불러온다. */
     const fetchMyPageData = async () => {
       try {
         setIsLoading(true);
@@ -195,7 +206,7 @@ export default function MyPage() {
         setUserInfo(normalizeUserInfo(memberData));
         setPetList(nextPetList);
         setMedicineAlarms(nextMedicineAlarms);
-      } catch (error) {
+      } catch {
         if (!isActive) return;
 
         setUserInfo(null);

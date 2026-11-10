@@ -14,5 +14,5 @@ export const app = getApps().some((item) => item.name === "[DEFAULT]")
   ? getApp()
   : initializeApp(firebaseConfig);
 
-// 알림 전용 서비스 워커에서는 인증을 초기화하지 않습니다.
+// 알림 전용 서비스 워커에서는 인증을 초기화하지 않는다.
 export const auth = typeof window !== "undefined" ? getAuth(app) : null;

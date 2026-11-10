@@ -1,5 +1,6 @@
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
+/** 현재 세션의 리프레시 토큰으로 액세스 토큰을 재발급하고 저장한다. */
 export const refreshAccessToken = async () => {
   const refreshToken = localStorage.getItem("refreshToken");
 
@@ -31,6 +32,7 @@ export const refreshAccessToken = async () => {
     throw new Error("토큰 재발급 응답에 accessToken이 없습니다.");
   }
 
+  // 갱신 중 계정이 바뀌면 이전 세션의 토큰으로 새 세션을 덮어쓰지 않는다.
   if (localStorage.getItem("refreshToken") !== refreshToken) {
     throw new Error("로그인 정보가 변경되었습니다. 다시 시도해주세요.");
   }

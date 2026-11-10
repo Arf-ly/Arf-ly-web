@@ -4,6 +4,7 @@ import "./AdminDashboard.css";
 import { getMemberList, getReportList } from "./AdminApi";
 import NextIcon from "../../assets/mypage/mypage_next_arrow.svg";
 
+/** 회원과 신고 현황을 관리자 대시보드에 표시한다. */
 function AdminDashboard({ handleTabClick }) {
 	const [memberMeta, setMemberMeta] = useState(null);
 	const [reports, setReports] = useState([]);
@@ -13,6 +14,7 @@ function AdminDashboard({ handleTabClick }) {
 	useEffect(() => {
 		let isCancelled = false;
 
+		/** 회원 목록의 조회 정보를 불러와 대시보드 상태에 반영한다. */
 		const fetchMemberList = async () => {
 			try {
 				const data = await getMemberList({
@@ -31,6 +33,7 @@ function AdminDashboard({ handleTabClick }) {
 			}
 		};
 
+		/** 신고 목록을 불러와 로딩 상태와 조회 결과를 갱신한다. */
 		const fetchReportList = async () => {
 			try {
 				setIsReportLoading(true);
