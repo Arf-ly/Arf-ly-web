@@ -16,6 +16,7 @@ const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 const passwordPattern =
   /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_])[a-zA-Z\d\W_]{8,20}$/;
 
+/** 휴대폰 인증을 통한 아이디 찾기와 비밀번호 재설정 흐름을 관리한다. */
 const Find = () => {
   const navigate = useNavigate();
   const recaptchaContainerRef = useRef(null);
@@ -46,6 +47,7 @@ const Find = () => {
     activeTab === "id" ||
     (activeTab === "password" && passwordStep === "phone");
 
+  /** 휴대폰 인증 입력값과 인증 진행 상태를 초기화한다. */
   const resetPhoneAuth = () => {
     setPhone("");
     setCode("");
@@ -55,6 +57,7 @@ const Find = () => {
     setConfirmationResult(null);
   };
 
+  /** 기존 reCAPTCHA 인스턴스와 연결된 참조를 정리한다. */
   const clearRecaptcha = () => {
     if (recaptchaVerifierRef.current) {
       recaptchaVerifierRef.current.clear();
@@ -68,6 +71,7 @@ const Find = () => {
     }
   };
 
+  /** 휴대폰 인증 요청에 사용할 reCAPTCHA 인스턴스를 준비한다. */
   const setupRecaptcha = async () => {
     if (recaptchaVerifierRef.current) {
       return recaptchaVerifierRef.current;
@@ -106,6 +110,7 @@ const Find = () => {
     return recaptchaRenderPromiseRef.current;
   };
 
+  /** 계정 찾기 단계에 맞춰 이전 인증 단계 또는 이전 화면으로 돌아간다. */
   const handleGoBack = () => {
     if (activeTab === "password" && passwordStep === "phone") {
       resetPhoneAuth();
@@ -121,6 +126,7 @@ const Find = () => {
     navigate(-1);
   };
 
+  /** 계정 찾기 탭을 전환하고 이전 탭의 인증 상태를 초기화한다. */
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     setFoundId("");
@@ -153,6 +159,7 @@ const Find = () => {
     }
   }, [isPhoneMode]);
 
+  /** 전화번호 입력을 정리하고 기존 인증 상태를 초기화한다. */
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/[^0-9]/g, "");
     if (value.length > 3 && value.length <= 7) {
@@ -164,6 +171,7 @@ const Find = () => {
     setCodeStatus("idle");
   };
 
+  /** 입력한 전화번호로 인증번호를 발송하고 인증 대기 상태를 설정한다. */
   const requestPhoneAuth = async () => {
     if (phone.length !== 13 || isLoading) return;
 
@@ -195,11 +203,13 @@ const Find = () => {
     }
   };
 
+  /** 인증번호 입력값을 갱신하고 이전 검증 상태를 초기화한다. */
   const handleCodeChange = (e) => {
     setCode(e.target.value.replace(/[^0-9]/g, ""));
     setCodeStatus("idle");
   };
 
+  /** 문자열 응답 또는 지정된 응답 필드에서 필요한 값을 추출한다. */
   const readPayloadValue = (data, keys) => {
     if (typeof data === "string") return data;
 
@@ -209,6 +219,7 @@ const Find = () => {
     return "";
   };
 
+  /** 응답 본문을 JSON으로 해석하고 일반 문자열이면 원문을 반환한다. */
   const parseResponseBody = async (response) => {
     const text = await response.text();
     if (!text) return {};
@@ -220,6 +231,7 @@ const Find = () => {
     }
   };
 
+  /** 휴대폰 인증 토큰으로 가입된 아이디를 조회해 표시한다. */
   const completeIdFind = async (firebaseToken) => {
     const response = await fetch(`${API_BASE_URL}/auth/id/find`, {
       method: "POST",
@@ -243,6 +255,7 @@ const Find = () => {
     setFoundId(nextFoundId);
   };
 
+  /** 휴대폰 인증 토큰으로 계정을 확인하고 비밀번호 재설정 단계를 연다. */
   const completePasswordVerify = async (firebaseToken) => {
     const response = await fetch(`${API_BASE_URL}/auth/password/verify`, {
       method: "POST",
@@ -271,6 +284,7 @@ const Find = () => {
     setPasswordStep("reset");
   };
 
+  /** 인증번호를 검증한 뒤 선택한 계정 찾기 절차를 진행한다. */
   const handlePhoneComplete = async () => {
     if (!confirmationResult || code.length !== 6 || isLoading) return;
 
@@ -294,6 +308,7 @@ const Find = () => {
     }
   };
 
+  /** 비밀번호 입력값과 형식 또는 일치 여부를 갱신한다. */
   const handlePasswordChange = (value, type) => {
     const nextPassword = type === "password" ? value : newPassword;
     const nextConfirm = type === "confirm" ? value : confirmPassword;
@@ -317,6 +332,7 @@ const Find = () => {
     setPasswordStatus(nextPassword ? "valid_format" : "idle");
   };
 
+  /** 인증된 계정의 비밀번호를 변경하고 로그인 화면으로 이동한다. */
   const handlePasswordReset = async () => {
     if (passwordStatus !== "match" || isLoading) return;
 
@@ -347,6 +363,7 @@ const Find = () => {
     }
   };
 
+  /** 인증 제한 시간을 분과 초로 표시한다. */
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
     const seconds = time % 60;

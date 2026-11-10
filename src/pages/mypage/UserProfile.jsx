@@ -7,6 +7,7 @@ import USERPROFILEIMG from "../../assets/mypage/UserProfile/UserProfile_profileI
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
+/** 사용자 닉네임과 주소의 수정 및 저장을 제공한다. */
 export default function UserProfile() {
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -50,6 +51,7 @@ export default function UserProfile() {
 
     const controller = new AbortController();
 
+    /** 변경한 닉네임의 중복 여부를 조회해 사용 가능 상태를 갱신한다. */
     const checkNickname = async () => {
       const accessToken = localStorage.getItem("accessToken");
 
@@ -89,6 +91,7 @@ export default function UserProfile() {
     };
   }, [isNicknameTouched, trimmedNickname]);
 
+  /** 우편번호 검색 창을 열고 선택한 주소를 입력값에 반영한다. */
   const handleAddressSearch = () => {
     if (!window.daum?.Postcode) {
       alert("주소 검색 서비스를 불러오지 못했습니다.");
@@ -103,6 +106,7 @@ export default function UserProfile() {
     }).open();
   };
 
+  /** 변경한 닉네임과 주소를 서버에 저장하고 이전 화면으로 돌아간다. */
   const handleChange = async () => {
     if (isChangeDisabled) return;
 
@@ -131,7 +135,7 @@ export default function UserProfile() {
       }
 
       navigate(-1);
-    } catch (error) {
+    } catch {
       alert("프로필 수정에 실패했습니다.");
     } finally {
       setIsChanging(false);

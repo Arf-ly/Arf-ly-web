@@ -41,10 +41,12 @@ const TABS = [
 	},
 ];
 
+/** 현재 경로에 맞는 하단 탭과 이동 버튼을 표시한다. */
 function BottomTabBar() {
 	const navigate = useNavigate();
 	const location = useLocation();
 
+	/** 선택한 하단 탭의 경로로 이동한다. */
 	const handleTabClick = (tab) => {
 		navigate(tab.path);
 	};

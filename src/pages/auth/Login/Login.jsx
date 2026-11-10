@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate, useRevalidator } from "react-router-dom";
+import { useCallback, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
 import Logo from "../../../assets/logo.svg";
@@ -9,29 +9,13 @@ import NaverLogin from "../../../assets/login/social/naver.svg";
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
+/** 소셜 로그인 진입 버튼과 OAuth 콜백 처리를 제공한다. */
 const Login = () => {
   const navigate = useNavigate();
   const isOauthHandling = useRef(false);
 
-  const [formData, setFormData] = useState({
-    userId: "",
-    password: "",
-  });
-
-  useEffect(() => {
-    const searchParams = new URL(window.location.href).searchParams;
-    const code = searchParams.get("code");
-    const state = searchParams.get("state");
-    const provider = localStorage.getItem("oauth_provider");
-
-    if (code && provider && !isOauthHandling.current) {
-      isOauthHandling.current = true;
-      handleOAuthCallback(provider, code, state);
-    }
-  }, []);
-
-  // 소셜 로그인 처리 함수
-  const handleOAuthCallback = async (provider, authCode, state) => {
+  /** 제공자별 인증 코드를 서버에 전달하고 발급된 로그인 토큰을 저장한다. */
+  const handleOAuthCallback = useCallback(async (provider, authCode, state) => {
     try {
       let endpoint = "";
       let bodyData = {};
@@ -56,7 +40,6 @@ const Login = () => {
         };
       }
 
-      // 백엔드 호출 소셜 로그인 처리 호출
       const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         method: "POST",
         headers: {
@@ -88,9 +71,21 @@ const Login = () => {
       console.error("OAuth API Error:", error);
       alert("로그인 처리 중 에러가 발생했습니다.");
     }
-  };
+  }, [navigate]);
 
-  // 구글 로그인 처리 함수
+  useEffect(() => {
+    const searchParams = new URL(window.location.href).searchParams;
+    const code = searchParams.get("code");
+    const state = searchParams.get("state");
+    const provider = localStorage.getItem("oauth_provider");
+
+    if (code && provider && !isOauthHandling.current) {
+      isOauthHandling.current = true;
+      handleOAuthCallback(provider, code, state);
+    }
+  }, [handleOAuthCallback]);
+
+  /** 구글 로그인 요청 정보를 구성하고 인증 페이지로 이동한다. */
   const handleGoogleLogin = async (e) => {
     e.preventDefault();
 
@@ -108,7 +103,7 @@ const Login = () => {
     window.location.href = url;
   };
 
-  // 카카오 로그인 처리 함수
+  /** 카카오 로그인 요청 정보를 구성하고 인증 페이지로 이동한다. */
   const handleKakaoLogin = async (e) => {
     e.preventDefault();
 
@@ -125,7 +120,7 @@ const Login = () => {
     window.location.href = url;
   };
 
-  // 네이버 로그인 처리 함수
+  /** 네이버 로그인 상태 값을 저장하고 인증 페이지로 이동한다. */
   const handleNaverLogin = async (e) => {
     e.preventDefault();
 
@@ -147,12 +142,10 @@ const Login = () => {
 
   return (
     <div className="login-wrapper">
-      {/* 로그인 로고 */}
       <div className="login-logo">
         <img src={Logo} alt="LOGO" />
         <span>"찍고, 알고, 케어하다."</span>
       </div>
-      {/* 소셜 로그인 */}
       <div className="oauth-login">
         <button type="button" onClick={handleKakaoLogin}>
           <img src={KakaoLogin} alt="KAKAO" />
@@ -164,7 +157,6 @@ const Login = () => {
           <img src={NaverLogin} alt="NAVER" />
         </button>
       </div>
-      {/* 회원가입 또는 로그인 */}
       <div className="auth-links">
         <span onClick={() => navigate("/signup")}>회원가입</span>
         <span className="divider">|</span>

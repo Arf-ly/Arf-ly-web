@@ -7,6 +7,7 @@ import { submitCommunityReport } from "./CommunityApi";
 import BackIcon from "../../assets/community/back.svg";
 import ComplainIcon from "../../assets/community/complain.svg";
 
+/** 신고 내용 입력과 이탈 확인, 신고 접수 결과를 관리한다. */
 function CommunityReport() {
 	const navigate = useNavigate();
 	const { postId } = useParams();
@@ -40,6 +41,7 @@ function CommunityReport() {
 			return;
 		}
 
+		/** 작성 중인 신고 내용이 있을 때 브라우저 이탈 확인을 요청한다. */
 		const handleBeforeUnload = (event) => {
 			event.preventDefault();
 			event.returnValue = "";
@@ -55,10 +57,12 @@ function CommunityReport() {
 		};
 	}, [isDirty, modalType]);
 
+	/** 신고 대상 게시글의 상세 화면으로 돌아간다. */
 	const returnToPost = () => {
 		navigate(`/community/${postId}`, { replace: true });
 	};
 
+	/** 작성한 신고 내용이 있으면 이탈을 확인하고 없으면 게시글로 돌아간다. */
 	const handleBackClick = () => {
 		if (isDirty) {
 			setModalType("discard");
@@ -68,6 +72,7 @@ function CommunityReport() {
 		returnToPost();
 	};
 
+	/** 신고 접수 상태에 따라 확인 창을 닫거나 게시글로 돌아간다. */
 	const handleModalClose = () => {
 		if (submittingRef.current) {
 			return;
@@ -81,12 +86,14 @@ function CommunityReport() {
 		setModalType(null);
 	};
 
+	/** 유효한 신고 내용이 입력되어 있으면 접수 확인 창을 연다. */
 	const handleReportClick = () => {
 		if (isActive && !isSubmitting) {
 			setModalType("confirm");
 		}
 	};
 
+	/** 게시글 식별자와 입력 내용을 확인해 신고를 접수하고 결과를 표시한다. */
 	const handleSubmit = async () => {
 		if (!isActive || submittingRef.current) {
 			return;
@@ -117,6 +124,7 @@ function CommunityReport() {
 		}
 	};
 
+	/** 신고 모달 상태에 따라 신고를 접수하거나 게시글로 돌아간다. */
 	const handleModalPrimaryClick = () => {
 		if (modalType === "success" || modalType === "discard") {
 			returnToPost();

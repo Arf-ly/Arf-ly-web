@@ -1,12 +1,9 @@
 :root {
-  /* Common */
   --common-white: #ffffff;
   --common-black: #000000;
 
-  /* Background */
   --background: #f4f3f1;
 
-  /* GrayScale Neutral */
   --gray-neutral-100: #ebebeb;
   --gray-neutral-200: #d1d1d1;
   --gray-neutral-300: #b8b8b8;
@@ -17,7 +14,6 @@
   --gray-neutral-800: #383838;
   --gray-neutral-900: #1e1e1e;
 
-  /* GrayScale Warm */
   --gray-warm-100: #f8f3f0;
   --gray-warm-200: #e8e1de;
   --gray-warm-300: #ccc4c1;
@@ -28,7 +24,6 @@
   --gray-warm-800: #2e2925;
   --gray-warm-900: #1e1710;
 
-  /* Main Color */
   --primary-50: #ffe0f0;
   --primary-100: #ffc8e5;
   --primary-200: #ffb0d9;
@@ -40,7 +35,6 @@
   --primary-800: #b2437e;
   --primary-900: #9a3068;
 
-  /* Secondary Color */
   --secondary-50: #fee5d4;
   --secondary-100: #f1cdb5;
   --secondary-200: #e1b394;

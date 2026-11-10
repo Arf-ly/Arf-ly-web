@@ -3,6 +3,7 @@ import { getNotifications } from "./NotificationApi.js";
 
 const initialMeta = { hasNext: false, nextCursor: null };
 
+/** 알림 조회와 중복 제거, 커서 이동 및 요청 오류 상태를 관리한다. */
 export default function useNotifications() {
   const [notifications, setNotifications] = useState([]);
   const [meta, setMeta] = useState(initialMeta);
@@ -52,6 +53,7 @@ export default function useNotifications() {
     return () => controller.abort();
   }, [request]);
 
+  /** 진행 중인 요청이 없고 다음 페이지가 있을 때 알림 추가 조회를 시작한다. */
   const loadMore = useCallback(() => {
     if (requestInFlight.current || status !== "success" || !meta.hasNext) {
       return;
@@ -65,6 +67,7 @@ export default function useNotifications() {
     }));
   }, [meta, status]);
 
+  /** 인증 오류가 아닌 실패한 알림 요청을 같은 커서로 다시 실행한다. */
   const retry = () => {
     if (requestInFlight.current || error?.unauthorized) return;
 
@@ -77,6 +80,7 @@ export default function useNotifications() {
     }));
   };
 
+  /** 알림 목록과 커서를 초기화하고 첫 페이지를 다시 조회한다. */
   const refresh = () => {
     if (requestInFlight.current || error?.unauthorized) return;
 

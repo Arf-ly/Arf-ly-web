@@ -1,4 +1,3 @@
-/* 시스템 로그인 */
 .SystemLoginWrapper {
   display: flex;
   flex-direction: column;
@@ -6,7 +5,6 @@
   position: relative;
 }
 
-/* 뒤로가기 */
 .BackBtn {
   margin-top: 50px;
 }
@@ -20,7 +18,6 @@
   cursor: pointer;
 }
 
-/* 로그인 글 */
 .LoginText {
   padding: 10px 30px 40px 30px;
 }
@@ -33,7 +30,6 @@
   color: var(--common-black);
 }
 
-/* 입력 폼 */
 .LoginInputForm {
   display: flex;
   flex-direction: column;
@@ -75,7 +71,6 @@
   color: var(--gray-neutral-400);
 }
 
-/* 비밀번호 가리기/보이기 버튼 */
 #toggle {
   background: none;
   border: none;
@@ -93,7 +88,6 @@
   opacity: 1;
 }
 
-/* 아이디 비밀번호 찾기 */
 .findIdPw {
   margin-top: 30px;
   display: flex;
@@ -112,7 +106,6 @@
   text-underline-position: under;
 }
 
-/* 에러 메시지 */
 .LoginErrorMessage {
   color: var(--primary-500);
   font-size: 14px;
@@ -120,7 +113,6 @@
   padding-left: 15px;
 }
 
-/* 로그인 버튼 */
 .summitLogin {
   position: absolute;
   bottom: 0;

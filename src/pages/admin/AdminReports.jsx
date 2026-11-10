@@ -9,6 +9,7 @@ import AdminModal from "./AdminModal";
 import BackIcon from "../../assets/community/back.svg";
 import NextIcon from "../../assets/mypage/mypage_next_arrow.svg";
 
+/** 작성 일시를 화면에서 사용하는 날짜와 시간 형식으로 변환한다. */
 const formatDate = (createdAt) => {
 	if (!createdAt) {
 		return "";
@@ -29,6 +30,7 @@ const formatDate = (createdAt) => {
 	return `${year}.${month}.${day} ${hour}:${minute}`;
 };
 
+/** 신고 사유 코드를 화면에 표시할 문구로 변환한다. */
 const getReportReasonLabel = (reason) => {
 	if (reason === "ADVERTISEMENT") {
 		return "광고";
@@ -44,6 +46,7 @@ const getReportReasonLabel = (reason) => {
 	return reason || "-";
 };
 
+/** 게시글 신고 목록과 상세 내용, 신고 반려 및 게시글 삭제를 관리한다. */
 function AdminReports({ actionSubmittingRef, isActionSubmitting, setIsActionSubmitting }) {
 	const navigate = useNavigate();
 	const [selectedReportId, setSelectedReportId] = useState(null);
@@ -71,6 +74,7 @@ function AdminReports({ actionSubmittingRef, isActionSubmitting, setIsActionSubm
 	useEffect(() => {
 		let isCancelled = false;
 
+		/** 신고 목록을 불러와 로딩 상태와 조회 결과를 갱신한다. */
 		const fetchReportList = async () => {
 			try {
 				setIsReportLoading(true);
@@ -112,6 +116,7 @@ function AdminReports({ actionSubmittingRef, isActionSubmitting, setIsActionSubm
 
 		let isCancelled = false;
 
+		/** 선택한 신고의 상세 내용을 불러와 화면 상태에 반영한다. */
 		const fetchReportDetail = async () => {
 			try {
 				setIsReportDetailLoading(true);
@@ -161,6 +166,7 @@ function AdminReports({ actionSubmittingRef, isActionSubmitting, setIsActionSubm
 
 		let isCancelled = false;
 
+		/** 게시글 상세 내용을 불러와 화면 상태를 갱신한다. */
 		const fetchPostDetail = async () => {
 			try {
 				setIsPostLoading(true);
@@ -190,6 +196,7 @@ function AdminReports({ actionSubmittingRef, isActionSubmitting, setIsActionSubm
 		};
 	}, [selectedReportId, selectedPostId]);
 
+	/** 신고와 게시글 상세 상태를 초기화하고 신고 목록으로 돌아간다. */
 	const handleBackClick = () => {
 		if (actionSubmittingRef.current) {
 			return;
@@ -201,6 +208,7 @@ function AdminReports({ actionSubmittingRef, isActionSubmitting, setIsActionSubm
 		setReportDetailError("");
 	};
 
+	/** 선택한 신고의 상세 조회를 시작하고 이전 조회 상태를 초기화한다. */
 	const handleReportClick = (reportId) => {
 		if (actionSubmittingRef.current) {
 			return;
@@ -214,6 +222,7 @@ function AdminReports({ actionSubmittingRef, isActionSubmitting, setIsActionSubm
 		setIsReportDetailLoading(true);
 	};
 
+	/** 관리 작업이 진행 중이지 않을 때 확인 모달을 연다. */
 	const handleModalOpen = (type) => {
 		if (actionSubmittingRef.current) {
 			return;
@@ -222,6 +231,7 @@ function AdminReports({ actionSubmittingRef, isActionSubmitting, setIsActionSubm
 		setModalType(type);
 	};
 
+	/** 관리 작업이 진행 중이지 않을 때 확인 모달을 닫는다. */
 	const handleModalClose = () => {
 		if (actionSubmittingRef.current) {
 			return;
@@ -230,6 +240,7 @@ function AdminReports({ actionSubmittingRef, isActionSubmitting, setIsActionSubm
 		setModalType(null);
 	};
 
+	/** 확인한 신고 반려 또는 게시글 삭제를 실행하고 신고 목록을 갱신한다. */
 	const handleConfirmClick = async () => {
 		if (actionSubmittingRef.current || selectedReportId === null || !selectedReport) {
 			return;

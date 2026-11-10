@@ -16,6 +16,7 @@ const CHART_HEIGHT = 500;
 const TOOLTIP_TOP = -96;
 const TOOLTIP_HEIGHT = 54;
 
+/** 주어진 날짜가 속한 주의 월요일 자정을 구한다. */
 function getMonday(date) {
   const copiedDate = new Date(date);
   const day = copiedDate.getDay();
@@ -27,20 +28,24 @@ function getMonday(date) {
   return copiedDate;
 }
 
+/** 원본 날짜를 유지하면서 지정한 일수만큼 이동한 날짜를 반환한다. */
 function addDays(date, days) {
   const copiedDate = new Date(date);
   copiedDate.setDate(copiedDate.getDate() + days);
   return copiedDate;
 }
 
+/** 원본 날짜를 유지하면서 지정한 주수만큼 이동한 날짜를 반환한다. */
 function addWeeks(date, weeks) {
   return addDays(date, weeks * 7);
 }
 
+/** 날짜를 한국어 연월일 형식으로 변환한다. */
 function formatKoreanDate(date) {
   return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
 }
 
+/** 조회 날짜를 API에서 사용하는 연월일 문자열로 변환한다. */
 function formatDateForQuery(date) {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -49,11 +54,13 @@ function formatDateForQuery(date) {
   return `${year}-${month}-${day}`;
 }
 
+/** 월요일부터 일요일까지의 날짜 범위를 한국어로 표시한다. */
 function formatWeekRange(mondayDate) {
   const sundayDate = addDays(mondayDate, 6);
   return `${formatKoreanDate(mondayDate)} ~ ${formatKoreanDate(sundayDate)}`;
 }
 
+/** 현재 주는 오늘 날짜를, 이전 주는 해당 주 월요일을 조회 기준으로 사용한다. */
 function getQueryDate(weekOffset, mondayDate) {
   if (weekOffset === 0) {
     return formatDateForQuery(new Date());
@@ -62,6 +69,7 @@ function getQueryDate(weekOffset, mondayDate) {
   return formatDateForQuery(mondayDate);
 }
 
+/** 문자열이 JSON이면 해석하고 그렇지 않으면 원래 값을 반환한다. */
 const parseMaybeJson = (value) => {
   if (typeof value !== "string") return value;
 
@@ -72,6 +80,7 @@ const parseMaybeJson = (value) => {
   }
 };
 
+/** multipart 응답의 경계와 필드 이름을 해석해 응답 객체를 구성한다. */
 const parseMultipartFormData = async (response) => {
   const contentType = response.headers.get("content-type") || "";
   const boundary =
@@ -110,6 +119,7 @@ const parseMultipartFormData = async (response) => {
   return parsedParts;
 };
 
+/** 응답 형식에 따라 JSON 또는 multipart 본문을 해석한다. */
 const readApiResponse = async (response) => {
   const contentType = response.headers.get("content-type") || "";
 
@@ -120,6 +130,7 @@ const readApiResponse = async (response) => {
   return response.json();
 };
 
+/** 선택한 반려동물의 기준 날짜에 해당하는 주간 보고서를 조회한다. */
 const fetchReport = async ({ petId, type, date }) => {
   const accessToken = localStorage.getItem("accessToken");
   const endpoint =
@@ -142,9 +153,11 @@ const fetchReport = async ({ petId, type, date }) => {
   return readApiResponse(response);
 };
 
+/** 주간 보고서에서 선택한 지표의 요일별 값을 추출한다. */
 const getReportValues = (week, fieldName) =>
   weekKeys.map((key) => Number(week?.[key]?.[fieldName] ?? 0));
 
+/** 반려동물 종류에 맞는 기본 프로필 이미지를 반환한다. */
 const getDefaultPetImage = ({ species, breed }) => {
   const petTypeText = `${species || ""} ${breed || ""}`.toUpperCase();
 
@@ -155,6 +168,7 @@ const getDefaultPetImage = ({ species, breed }) => {
   return HOMEDOG;
 };
 
+/** 주간 보고서 응답을 반려동물 정보와 활동 지표로 정리한다. */
 const normalizeReport = (data, type, fallbackPet) => {
   const pet = data?.pet || {};
   const fieldName = type === "steps" ? "activityScore" : "distanceKm";
@@ -183,6 +197,7 @@ const normalizeReport = (data, type, fallbackPet) => {
   };
 };
 
+/** 주간 활동 지표를 표시하고 조회 주와 지표, 선택 요일을 관리한다. */
 export default function WeeklyActive() {
   const navigate = useNavigate();
   const { petId } = useParams();
@@ -223,6 +238,7 @@ export default function WeeklyActive() {
     selectedDayIndex === null
       ? null
       : addDays(visibleWeekMonday, selectedDayIndex);
+  /** 선택한 활동 지표에 맞는 자릿수로 수치를 표시한다. */
   const formatValue = (value) => {
     if (isWalkedOpen) {
       return Math.round(value).toLocaleString();
@@ -235,6 +251,7 @@ export default function WeeklyActive() {
 
     let isActive = true;
 
+    /** 지정한 주의 활동 보고서를 조회하고 유효한 화면에 결과를 반영한다. */
     const loadReport = async (type) => {
       const cacheKey = `${type}:${queryDate}`;
       if (reportCache[cacheKey]) return;
@@ -255,6 +272,7 @@ export default function WeeklyActive() {
       setCurrentPet((prev) => normalizedReport.pet || prev);
     };
 
+    /** 최초에는 걸음 수와 거리 보고서를 함께 조회하고 이후에는 선택한 지표를 조회한다. */
     const loadReports = async () => {
       try {
         setIsLoading(true);
@@ -283,10 +301,12 @@ export default function WeeklyActive() {
     };
   }, [activeType, fallbackPet, petId, queryDate, reportCache]);
 
+  /** 표시할 활동 지표를 변경하고 선택한 요일을 초기화한다. */
   const handleSelectTab = (nextIsWalkedOpen) => {
     setIsWalkedOpen(nextIsWalkedOpen);
     setSelectedDayIndex(null);
   };
+  /** 차트에서 상세 수치를 볼 요일을 선택하거나 기존 선택을 해제한다. */
   const handleSelectDay = (index) => {
     setSelectedDayIndex((prevIndex) => (prevIndex === index ? null : index));
   };

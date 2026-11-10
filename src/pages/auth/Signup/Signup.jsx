@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef, useState } from "react";
+﻿import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 import { auth } from "../../../utils/firebase.js";
@@ -14,6 +14,7 @@ import RightIcon from "../../../assets/login/system/right.svg";
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
+/** 계정 입력, 휴대폰 인증, 약관 동의로 이어지는 회원가입을 관리한다. */
 const Signup = () => {
   const navigate = useNavigate();
   const recaptchaContainerRef = useRef(null);
@@ -38,10 +39,9 @@ const Signup = () => {
   const [codeStatus, setCodeStatus] = useState("idle");
   const [confirmationResult, setConfirmationResult] = useState(null);
 
-  // 파이어베이스 토큰 저장용 상태
   const [authToken, setAuthToken] = useState("");
 
-  // 뒤로 가기
+  /** 회원가입 단계에 따라 이전 입력 단계 또는 이전 화면으로 돌아간다. */
   const handleGoBack = () => {
     if (step === 2) {
       setStep(1);
@@ -50,7 +50,7 @@ const Signup = () => {
     }
   };
 
-  // 아이디 중복 체크
+  /** 입력한 아이디의 중복 여부를 조회하고 사용 가능 상태를 갱신한다. */
   const checkDuplicateId = async (currentId) => {
     if (!currentId) {
       setIdStatus("idle");
@@ -82,11 +82,10 @@ const Signup = () => {
     }
   };
 
-  // 비밀번호 정규식 패턴 (8~20자 영문, 숫자, 특수문자 조합)
   const passwordPattern =
     /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_])[a-zA-Z\d\W_]{8,20}$/;
 
-  // 아이디 입력 창 없어나면 자동으로 id 중복 체크
+  /** 아이디 입력 완료 시 형식을 확인하고 중복 검사를 진행한다. */
   const handleIdBlurOrEnter = (e) => {
     if (e.type === "blur" || e.key === "Enter") {
       const idPattern = /^[A-Za-z0-9]{4,20}$/;
@@ -98,13 +97,13 @@ const Signup = () => {
     }
   };
 
-  // 아이디 입력값이 바뀌면 idle로 만들어 다시 중복 체크
+  /** 아이디 입력값을 갱신하고 이전 중복 검사 결과를 초기화한다. */
   const handleIdChange = (e) => {
     setId(e.target.value);
     setIdStatus("idle");
   };
 
-  // 비밀번호 입력
+  /** 비밀번호 입력값과 형식 또는 일치 여부를 갱신한다. */
   const handlePasswordChange = (e) => {
     const newPassword = e.target.value;
     setPassword(newPassword);
@@ -118,7 +117,7 @@ const Signup = () => {
     }
   };
 
-  // 비밀번호와 비밀번호 확인 칸의 두 값이 같은지 확인
+  /** 비밀번호 확인값을 갱신하고 형식과 일치 여부를 확인한다. */
   const handleConfirmPasswordChange = (e) => {
     const newConfirm = e.target.value;
     setConfirmPassword(newConfirm);
@@ -134,7 +133,7 @@ const Signup = () => {
     }
   };
 
-  // 다음 단계로
+  /** 회원가입의 다음 입력 단계로 이동한다. */
   const handleNext = () => {
     setStep(2);
   };
@@ -156,10 +155,10 @@ const Signup = () => {
     return () => clearInterval(timerId);
   }, [isCodeSent, timeLeft]);
 
-  // 전화번호 인증을 위한 recaptcha 생성
   useEffect(() => {
     let isActive = true;
 
+    /** 휴대폰 인증 요청에 사용할 reCAPTCHA 인스턴스를 준비한다. */
     const setupRecaptcha = async () => {
       if (
         step !== 2 ||
@@ -199,7 +198,7 @@ const Signup = () => {
     };
   }, [step]);
 
-  // 전화번호 입력
+  /** 전화번호를 표시 형식에 맞춰 정리하고 입력값을 갱신한다. */
   const handlePhoneChange = (e) => {
     let val = e.target.value.replace(/[^0-9]/g, "");
     if (val.length > 3 && val.length <= 7)
@@ -209,7 +208,7 @@ const Signup = () => {
     setPhone(val);
   };
 
-  // 인증번호 발송
+  /** 입력한 전화번호로 인증번호를 발송하고 인증 대기 상태를 설정한다. */
   const RequestPhoneAuth = async () => {
     if (!phone || phone.length < 13) return;
     try {
@@ -233,13 +232,14 @@ const Signup = () => {
     }
   };
 
+  /** 인증번호 입력값을 갱신하고 이전 검증 상태를 초기화한다. */
   const handleCodeChange = (e) => {
     const val = e.target.value.replace(/[^0-9]/g, "");
     setCode(val);
     setCodeStatus("idle");
   };
 
-  // 인증 완료
+  /** 휴대폰 인증번호를 검증하고 인증 토큰을 저장한 뒤 약관 단계로 이동한다. */
   const handleComplete = async () => {
     try {
       let result;
@@ -252,15 +252,14 @@ const Signup = () => {
       const token = await result.user.getIdToken();
       setAuthToken(token);
       setCodeStatus("match");
-      setStep(3); // 이용약관 단계로 이동
+      setStep(3);
     } catch {
       setCodeStatus("mismatch");
     }
   };
 
-  // 약관 동의 완료 후 회원가입 API 호출
+  /** 약관 동의와 인증된 계정 정보를 전송해 회원가입을 완료한다. */
   const handleTermsComplete = async (agreements) => {
-    // termsId 매핑
     const termsMapping = {
       service: 1,
       privacy: 2,
@@ -312,7 +311,7 @@ const Signup = () => {
     }
   };
 
-  // 인증 남은 시간 표시
+  /** 인증 제한 시간을 분과 초로 표시한다. */
   const formatTime = (time) => {
     const m = Math.floor(time / 60);
     const s = time % 60;

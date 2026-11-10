@@ -1,3 +1,4 @@
+/** 사용자 에이전트와 터치 지원 여부로 모바일 기기인지 확인한다. */
 export const isMobileDevice = () => {
   if (typeof navigator === "undefined") return false;
 
@@ -10,6 +11,7 @@ export const isMobileDevice = () => {
   );
 };
 
+/** 사용자 에이전트에서 푸시 토큰 등록에 사용할 기기 유형을 구한다. */
 export const getDeviceType = () => {
   if (typeof navigator === "undefined") return "DESKTOP";
 

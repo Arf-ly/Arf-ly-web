@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import "./CommunitySearch.css";
 import { deleteRecentSearch, searchPosts } from "./CommunityApi";
+import CommunityThumbnailImage from "../../components/CommunityThumbnailImage.jsx";
 
 import BackIcon from "../../assets/community/back.svg";
 import SearchIcon from "../../assets/community/search.svg";
@@ -13,6 +14,7 @@ import NoSearchDogIcon from "../../assets/community/no_search_dog.svg";
 
 const RECENT_SEARCH_KEY = "communityRecentSearches";
 
+/** 게시글 작성 시각을 경과 시간 또는 날짜 문구로 변환한다. */
 const format_created_at = (created_at) => {
 	if (!created_at) {
 		return "";
@@ -49,44 +51,7 @@ const format_created_at = (created_at) => {
 	return created_at.slice(0, 10);
 };
 
-function CommunityThumbnailImage({ src, alt }) {
-	const [image_src, set_image_src] = useState(null);
-
-	useEffect(() => {
-		if (!src) {
-			set_image_src(null);
-			return;
-		}
-
-		let is_mounted = true;
-		const image = new Image();
-
-		image.onload = () => {
-			if (is_mounted) {
-				set_image_src(src);
-			}
-		};
-
-		image.onerror = () => {
-			if (is_mounted) {
-				set_image_src(null);
-			}
-		};
-
-		image.src = src;
-
-		return () => {
-			is_mounted = false;
-		};
-	}, [src]);
-
-	if (!image_src) {
-		return null;
-	}
-
-	return <img className="community_search_thumbnail" src={image_src} alt={alt} />;
-}
-
+/** 최근 검색어와 게시글 검색, 정렬 및 추가 조회를 관리한다. */
 function CommunitySearch() {
 	const navigate = useNavigate();
 	const observer_target_ref = useRef(null);
@@ -129,7 +94,7 @@ function CommunitySearch() {
 			if (Array.isArray(parsed_searches)) {
 				set_recent_searches(parsed_searches);
 			}
-		} catch (error) {
+		} catch {
 			localStorage.removeItem(RECENT_SEARCH_KEY);
 		}
 	}, []);
@@ -138,6 +103,7 @@ function CommunitySearch() {
 		search_input_ref.current?.focus();
 	}, []);
 
+	/** 새 검색어를 중복 없이 최근 검색 기록에 반영하고 저장한다. */
 	const save_recent_search = (next_keyword) => {
 		const trimmed_keyword = next_keyword.trim();
 
@@ -157,7 +123,8 @@ function CommunitySearch() {
 		);
 	};
 
-	const fetch_search_posts = async ({
+	/** 검색 조건에 맞는 게시글을 조회하고 검색 결과와 커서를 갱신한다. */
+	const fetch_search_posts = useCallback(async ({
 		next_keyword = searched_keyword,
 		next_sort = sort,
 		cursor,
@@ -198,26 +165,13 @@ function CommunitySearch() {
 			}
 
 			set_meta(next_meta);
-		} catch (error) {
+		} catch {
 			set_error_message("검색 결과를 불러오지 못했습니다.");
 		} finally {
 			set_is_loading(false);
 			set_is_more_loading(false);
 		}
-	};
-
-	useEffect(() => {
-		if (!is_searched || !searched_keyword) {
-			return;
-		}
-
-		fetch_search_posts({
-			next_keyword: searched_keyword,
-			next_sort: sort,
-			cursor: null,
-			is_more: false,
-		});
-	}, [sort]);
+	}, [searched_keyword, sort]);
 
 	useEffect(() => {
 		if (!observer_target_ref.current) {
@@ -256,6 +210,7 @@ function CommunitySearch() {
 			observer.disconnect();
 		};
 	}, [
+		fetch_search_posts,
 		meta.hasNext,
 		meta.nextCursor,
 		is_loading,
@@ -265,10 +220,12 @@ function CommunitySearch() {
 		sort,
 	]);
 
+	/** 검색 화면에서 이전 화면으로 돌아간다. */
 	const handle_back_click = () => {
 		navigate(-1);
 	};
 
+	/** 입력한 검색어를 기록하고 첫 페이지 검색을 실행한다. */
 	const handle_search_submit = (event) => {
 		event.preventDefault();
 
@@ -283,10 +240,7 @@ function CommunitySearch() {
 		save_recent_search(trimmed_keyword);
 		set_is_sort_open(false);
 
-		if (sort !== "latest") {
-			set_sort("latest");
-			return;
-		}
+		set_sort("latest");
 
 		fetch_search_posts({
 			next_keyword: trimmed_keyword,
@@ -296,6 +250,7 @@ function CommunitySearch() {
 		});
 	};
 
+	/** 최근 검색어를 선택해 해당 검색어의 첫 페이지를 조회한다. */
 	const handle_recent_search_click = (recent_keyword) => {
 		set_keyword(recent_keyword);
 		set_is_searched(true);
@@ -303,10 +258,7 @@ function CommunitySearch() {
 		save_recent_search(recent_keyword);
 		set_is_sort_open(false);
 
-		if (sort !== "latest") {
-			set_sort("latest");
-			return;
-		}
+		set_sort("latest");
 
 		fetch_search_posts({
 			next_keyword: recent_keyword,
@@ -316,6 +268,7 @@ function CommunitySearch() {
 		});
 	};
 
+	/** 최근 검색어를 화면과 저장소에서 제거하고 서버에 삭제를 요청한다. */
 	const handle_recent_search_delete = async (recent_keyword) => {
 		const next_recent_searches = recent_searches.filter(
 			(item) => item !== recent_keyword
@@ -329,15 +282,27 @@ function CommunitySearch() {
 
 		try {
 			await deleteRecentSearch(recent_keyword);
-		} catch (error) {
+		} catch {
+			// 서버 삭제가 실패해도 사용자가 지운 로컬 검색 기록은 복원하지 않는다.
 		}
 	};
 
+	/** 정렬 선택 메뉴를 닫고 정렬 조건이 바뀌면 현재 검색어의 첫 페이지를 조회한다. */
 	const handle_sort_change = (next_sort) => {
 		set_sort(next_sort);
 		set_is_sort_open(false);
+
+		if (next_sort !== sort && is_searched && searched_keyword) {
+			fetch_search_posts({
+				next_keyword: searched_keyword,
+				next_sort,
+				cursor: null,
+				is_more: false,
+			});
+		}
 	};
 
+	/** 최근 검색어 목록과 각 검색어의 삭제 버튼을 표시한다. */
 	const render_recent_searches = () => {
 		if (recent_searches.length === 0) {
 			return (
@@ -381,6 +346,7 @@ function CommunitySearch() {
 		);
 	};
 
+	/** 검색된 게시글의 내용과 썸네일을 카드로 표시한다. */
 	const render_post_card = (post) => {
 		const created_at_text = format_created_at(post.createdAt);
 		const thumbnail_urls = (post.thumbnails || []).filter(Boolean);
@@ -439,6 +405,7 @@ function CommunitySearch() {
 
 								return (
 									<CommunityThumbnailImage
+										className="community_search_thumbnail"
 										key={`${post.id}-${item.url}-${media_index}`}
 										src={item.url}
 										alt={`게시글 이미지 ${media_index + 1}`}

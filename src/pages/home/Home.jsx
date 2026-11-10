@@ -29,6 +29,7 @@ const weekLabels = ["M", "T", "W", "T", "F", "S", "S"];
 const weekKeys = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 const dayKeyByDateIndex = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
+/** 로그인 토큰의 페이로드에서 사용자 권한을 추출한다. */
 const getRoleFromToken = (token) => {
   try {
     const parts = token?.split(".");
@@ -45,6 +46,7 @@ const getRoleFromToken = (token) => {
   }
 };
 
+/** 조회 날짜를 API에서 사용하는 연월일 문자열로 변환한다. */
 const formatDateForQuery = (date) => {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -53,6 +55,7 @@ const formatDateForQuery = (date) => {
   return `${year}-${month}-${day}`;
 };
 
+/** 출생 연도에서 현재 연도 기준의 나이를 계산한다. */
 const getAgeFromBirth = (birth) => {
   if (!birth) return 0;
 
@@ -62,9 +65,11 @@ const getAgeFromBirth = (birth) => {
   return Math.max(new Date().getFullYear() - birthYear, 0);
 };
 
+/** 서버의 성별 값을 화면에서 사용하는 구분 값으로 변환한다. */
 const normalizeSex = (sex) =>
   String(sex).toUpperCase() === "FEMALE" ? "female" : "male";
 
+/** 반려동물 종류에 맞는 기본 프로필 이미지를 반환한다. */
 const getDefaultPetImage = ({ species, breed }) => {
   const petTypeText = `${species || ""} ${breed || ""}`.toUpperCase();
 
@@ -75,21 +80,26 @@ const getDefaultPetImage = ({ species, breed }) => {
   return HOMEDOG;
 };
 
+/** 주간 보고서의 지정된 수치를 월요일부터 일요일 순서로 추출한다. */
 const getWeekValues = (week, fieldName) =>
   weekKeys.map((key) => Number(week?.[key]?.[fieldName] ?? 0));
 
+/** 주간 보고서에서 오늘에 해당하는 활동 수치를 추출한다. */
 const getTodayWeekValue = (week, fieldName) => {
   const todayKey = dayKeyByDateIndex[new Date().getDay()];
   return Number(week?.[todayKey]?.[fieldName] ?? 0);
 };
 
+/** 응답 구조에 맞춰 주간 활동 데이터 객체를 추출한다. */
 const getReportWeek = (data) => data?.week || data?.pet?.week || {};
 
+/** 서로 다른 진단 응답 형식에서 진단 목록을 추출한다. */
 const getDiagnosisList = (data) => {
   const list = data?.diagnosis || data?.diagnoses || data?.data || [];
   return Array.isArray(list) ? list : [];
 };
 
+/** 저장된 액세스 토큰이 있으면 인증 헤더를 구성한다. */
 const getAuthHeaders = () => {
   const accessToken = localStorage.getItem("accessToken");
 
@@ -100,6 +110,7 @@ const getAuthHeaders = () => {
     : {};
 };
 
+/** 비어 있지 않은 조회 조건을 쿼리 문자열로 붙여 API 주소를 만든다. */
 const createApiUrl = (path, query = {}) => {
   const params = new URLSearchParams();
 
@@ -113,6 +124,7 @@ const createApiUrl = (path, query = {}) => {
   return `${API_BASE_URL}${path}${queryString ? `?${queryString}` : ""}`;
 };
 
+/** 문자열이 JSON이면 해석하고 그렇지 않으면 원래 값을 반환한다. */
 const parseMaybeJson = (value) => {
   if (typeof value !== "string") return value;
 
@@ -123,6 +135,7 @@ const parseMaybeJson = (value) => {
   }
 };
 
+/** multipart 응답의 경계와 필드 이름을 해석해 응답 객체를 구성한다. */
 const parseMultipartFormData = async (response) => {
   const contentType = response.headers.get("content-type") || "";
   const boundary =
@@ -162,6 +175,7 @@ const parseMultipartFormData = async (response) => {
   return parsedParts;
 };
 
+/** 인증 정보를 포함해 데이터를 조회하고 응답 본문을 반환한다. */
 const fetchApiData = async (path, query) => {
   const response = await fetch(createApiUrl(path, query), {
     method: "GET",
@@ -184,6 +198,7 @@ const fetchApiData = async (path, query) => {
   return response.json();
 };
 
+/** 진단 응답을 홈 화면의 기록 카드에 필요한 정보로 변환한다. */
 const normalizeDiagnosis = (diagnosis, fallbackPetId) => {
   const createdAt = diagnosis.createdAt ? new Date(diagnosis.createdAt) : null;
   const isValidDate = createdAt && !Number.isNaN(createdAt.getTime());
@@ -205,6 +220,7 @@ const normalizeDiagnosis = (diagnosis, fallbackPetId) => {
   };
 };
 
+/** 반려동물별 활동 현황과 진단 기록, 촬영 및 주요 기능 진입 화면을 제공한다. */
 export default function Home() {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
@@ -221,6 +237,7 @@ export default function Home() {
     selectedRecordPetIndex === null
       ? "전체"
       : pets[selectedRecordPetIndex]?.name;
+  /** 숫자를 앞자리 0이 포함된 두 자리 문자열로 변환한다. */
   const padTwo = (value) => String(value).padStart(2, "0");
   const visibleCheckRecords =
     selectedRecordPetIndex === null
@@ -235,9 +252,11 @@ export default function Home() {
   const [isDiagnosisPetSheetOpen, setIsDiagnosisPetSheetOpen] = useState(false);
   const [selectedDiagnosisPet, setSelectedDiagnosisPet] = useState(null);
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+  /** 진단에 사용할 사진을 선택하는 파일 창을 연다. */
   const handleImportClick = () => {
     fileInputRef.current?.click();
   };
+  /** 선택한 사진의 형식을 확인하고 진단 촬영 화면으로 전달한다. */
   const handleImportChange = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -264,6 +283,7 @@ export default function Home() {
   };
 
   useEffect(() => {
+    /** 반려동물 정보와 활동 보고서, 진단 기록을 조회해 홈 화면을 갱신한다. */
     const fetchHomeData = async () => {
       const accessToken = localStorage.getItem("accessToken");
 
@@ -357,7 +377,7 @@ export default function Home() {
         setCurrentPetIndex(0);
         setSelectedRecordPetIndex(null);
         setSelectedDiagnosisPet(null);
-      } catch (error) {
+      } catch {
         setPets([]);
         setAllDiagnoses([]);
         setDiagnosesByPetId({});

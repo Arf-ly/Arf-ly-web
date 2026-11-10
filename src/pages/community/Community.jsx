@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import "./Community.css";
 import BottomTabBar from "../../components/BottomTabBar";
+import CommunityThumbnailImage from "../../components/CommunityThumbnailImage.jsx";
 
 import { getPostList } from "./CommunityApi";
 
@@ -13,6 +14,7 @@ import SortArrowIcon from "../../assets/community/sort_^.svg";
 import AdBackground from "../../assets/community/ad_background.svg";
 import AdIcon from "../../assets/community/ad_icon.svg";
 
+/** 게시글 작성 시각을 경과 시간 또는 날짜 문구로 변환한다. */
 const format_created_at = (created_at) => {
 	if (!created_at) {
 		return "";
@@ -49,48 +51,12 @@ const format_created_at = (created_at) => {
 	return created_at.slice(0, 10);
 };
 
+/** 게시글 위치에 따라 광고 배너를 표시할지 결정한다. */
 const should_show_ad_banner = (index) => {
 	return index === 2 || (index > 2 && (index - 2) % 10 === 0);
 };
 
-function CommunityThumbnailImage({ src, alt }) {
-	const [image_src, set_image_src] = useState(null);
-
-	useEffect(() => {
-		if (!src) {
-			set_image_src(null);
-			return;
-		}
-
-		let is_mounted = true;
-		const image = new Image();
-
-		image.onload = () => {
-			if (is_mounted) {
-				set_image_src(src);
-			}
-		};
-
-		image.onerror = () => {
-			if (is_mounted) {
-				set_image_src(null);
-			}
-		};
-
-		image.src = src;
-
-		return () => {
-			is_mounted = false;
-		};
-	}, [src]);
-
-	if (!image_src) {
-		return null;
-	}
-
-	return <img className="community_thumbnail" src={image_src} alt={alt} />;
-}
-
+/** 커뮤니티 목록에 삽입되는 광고 배너를 표시한다. */
 function CommunityAdBanner() {
 	return (
 		<section className="community_ad_banner">
@@ -115,6 +81,7 @@ function CommunityAdBanner() {
 	);
 }
 
+/** 게시글 정렬과 추가 조회를 관리하고 커뮤니티 목록을 표시한다. */
 function Community() {
 	const navigate = useNavigate();
 	const observer_target_ref = useRef(null);
@@ -138,7 +105,8 @@ function Community() {
 	const next_sort_text = sort === "latest" ? "인기순" : "최신순";
 	const next_sort_value = sort === "latest" ? "likes" : "latest";
 
-	const fetch_posts = async ({
+	/** 정렬 조건과 커서에 따라 게시글을 조회하고 목록을 갱신한다. */
+	const fetch_posts = useCallback(async ({
 		next_sort = sort,
 		cursor,
 		is_more = false,
@@ -179,7 +147,7 @@ function Community() {
 			set_is_loading(false);
 			set_is_more_loading(false);
 		}
-	};
+	}, [sort]);
 
 	useEffect(() => {
 		fetch_posts({
@@ -187,7 +155,7 @@ function Community() {
 			cursor: null,
 			is_more: false,
 		});
-	}, [sort]);
+	}, [fetch_posts, sort]);
 
 	useEffect(() => {
 		if (!observer_target_ref.current) {
@@ -223,8 +191,9 @@ function Community() {
 		return () => {
 			observer.disconnect();
 		};
-	}, [meta.hasNext, meta.nextCursor, is_loading, is_more_loading, sort]);
+	}, [fetch_posts, meta.hasNext, meta.nextCursor, is_loading, is_more_loading, sort]);
 
+	/** 게시글 정렬 조건을 변경하고 정렬 선택 메뉴를 닫는다. */
 	const handle_sort_change = (next_sort) => {
 		set_sort(next_sort);
 		set_is_sort_open(false);
@@ -368,6 +337,7 @@ function Community() {
 
 													return (
 														<CommunityThumbnailImage
+															className="community_thumbnail"
 															key={`${post.id}-${item.url}-${media_index}`}
 															src={item.url}
 															alt={`게시글 이미지 ${media_index + 1}`}

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 
+/** 관리 작업의 확인 문구와 입력 항목, 실행 버튼을 표시한다. */
 function AdminModal({ modalType, modalTitle, modalDescription, modalButtonText, isDanger = false, isActionSubmitting = false, isConfirmDisabled = false, handleModalClose, handleConfirmClick, children }) {
 	const modalRef = useRef(null);
 

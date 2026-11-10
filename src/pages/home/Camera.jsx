@@ -17,6 +17,7 @@ const cameraConfigurations = {
   },
 };
 
+/** 촬영 목적에 맞는 카메라 화면과 이미지 선택, 미리보기 및 완료 동작을 제공한다. */
 export default function Camera({
   purpose,
   pet,
@@ -41,6 +42,7 @@ export default function Camera({
     let isActive = true;
     let cameraStream = null;
 
+    /** 기기 카메라 스트림을 요청해 영상에 연결하고 해제된 화면의 스트림을 정리한다. */
     async function startCamera() {
       try {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -59,6 +61,7 @@ export default function Camera({
           audio: false,
         });
 
+        // 권한을 기다리는 동안 화면을 벗어났다면 도착한 스트림을 즉시 종료한다.
         if (!isActive) {
           stream.getTracks().forEach((track) => track.stop());
           return;
@@ -92,6 +95,7 @@ export default function Camera({
     };
   }, [allowCapture, capturedImage, facingMode, isValidPurpose, purpose]);
 
+  /** 현재 카메라 영상을 캔버스에 복사해 촬영 이미지로 저장한다. */
   const handleCapture = () => {
     const video = videoRef.current;
     if (
@@ -113,11 +117,13 @@ export default function Camera({
     setCapturedImage(canvas.toDataURL("image/png"));
   };
 
+  /** 기기에서 이미지를 가져오는 파일 선택 창을 연다. */
   const handleGalleryClick = () => {
     if (isSubmitting) return;
     fileInputRef.current?.click();
   };
 
+  /** 선택한 이미지 파일을 읽어 촬영 미리보기에 반영한다. */
   const handleGalleryChange = (event) => {
     if (isSubmitting) return;
     const file = event.target.files?.[0];
@@ -135,6 +141,7 @@ export default function Camera({
     reader.readAsDataURL(file);
   };
 
+  /** 현재 이미지를 비우고 다시 촬영하거나 선택할 수 있도록 초기화한다. */
   const handleRetake = () => {
     if (isSubmitting) return;
     setCapturedImage(null);
@@ -144,6 +151,7 @@ export default function Camera({
     }
   };
 
+  /** 전면과 후면 카메라를 전환하고 현재 이미지를 초기화한다. */
   const handleRotateCamera = () => {
     if (!allowCapture || isSubmitting) return;
     setCapturedImage(null);
@@ -152,6 +160,7 @@ export default function Camera({
     );
   };
 
+  /** 기기의 플래시 지원 여부를 확인하고 카메라 조명을 전환한다. */
   const handleToggleFlash = async () => {
     if (!allowCapture || isSubmitting) return;
     const videoTrack = streamRef.current?.getVideoTracks?.()[0];
@@ -185,6 +194,7 @@ export default function Camera({
     }
   };
 
+  /** 유효한 촬영 결과가 있으면 완료 콜백에 이미지를 전달한다. */
   const handleComplete = () => {
     if (!configuration || !capturedImage || isSubmitting) return;
     if (typeof onComplete !== "function") return;

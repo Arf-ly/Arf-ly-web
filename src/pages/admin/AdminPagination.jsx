@@ -1,3 +1,4 @@
+/** 현재 페이지와 이동 가능한 페이지 버튼을 표시한다. */
 function AdminPagination({ currentPage, totalPages, pageStart, totalCount, visibleCount, hasNext, setCurrentPage }) {
 	const pageGroupStart = Math.floor((currentPage - 1) / 3) * 3;
 	const pageNumbers = Array.from(
