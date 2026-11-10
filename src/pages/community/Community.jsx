@@ -265,7 +265,11 @@ function Community() {
 				</div>
 
 				<div className="community_header_icons">
-					<button type="button" aria-label="알림">
+					<button
+						type="button"
+						aria-label="알림"
+						onClick={() => navigate("/alarmnotification")}
+					>
 						<img className="community_alarm_icon" src={AlarmIcon} alt="" />
 					</button>
 

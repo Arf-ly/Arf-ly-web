@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import BottomTabBar from "../../components/BottomTabBar.jsx";
 import PhotoSourceSheet from "../../components/PhotoSourceSheet.jsx";
+import NotificationButton from "../../components/NotificationButton.jsx";
 
 const API_BASE_URL = import.meta.env.VITE_SERVER_API_BASE_URL;
 
 import HOMELOGO from "../../assets/home/home_logo.svg";
-import HOMEBELL from "../../assets/home/home_bell.svg";
 import HOMEMALE from "../../assets/home/home_male.svg";
 import HOMEFEMALE from "../../assets/home/home_female.svg";
 import HOMEPAW from "../../assets/home/home_paw.svg";
@@ -400,7 +400,7 @@ export default function Home() {
             />
           </button>
         )}
-        <img src={HOMEBELL} alt="알림" />
+        <NotificationButton />
       </div>
     </div>
   );

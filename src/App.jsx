@@ -118,6 +118,7 @@ function ProtectedRoute({ children }) {
         }
 
         localStorage.setItem("accessToken", data.accessToken);
+        setCheckedAccessToken(data.accessToken);
         setShowTerms(false);
         return;
       }
@@ -155,7 +156,9 @@ const protectedElement = (element) => (
 function App() {
   useLocation();
   const refreshToken = localStorage.getItem("refreshToken");
-  const hasAccessToken = Boolean(localStorage.getItem("accessToken"));
+  const accessToken = localStorage.getItem("accessToken");
+  const hasAccessToken = Boolean(accessToken);
+  const sessionKey = accessToken ? refreshToken || accessToken : "anonymous";
 
   useEffect(() => {
     if (!hasAccessToken || !refreshToken) return;
@@ -185,9 +188,7 @@ function App() {
   }, [hasAccessToken, refreshToken]);
 
   return (
-    <NotificationPromptProvider
-      key={hasAccessToken ? refreshToken || "authenticated" : "anonymous"}
-    >
+    <NotificationPromptProvider key={sessionKey}>
       <Routes>
         {/* 로그인 관련 */}
         <Route path="/" element={<Login />} />
