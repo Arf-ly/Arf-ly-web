@@ -6,9 +6,8 @@ import {
   useRef,
   useState,
 } from "react";
-import { sendFcmToken } from "../pages/mypage/NotificationApi.js";
 import {
-  getFcmToken,
+  registerFcmTokenOnce,
   validatePushConfiguration,
 } from "../utils/pushNotifications.js";
 import "./NotificationPrompt.css";
@@ -44,7 +43,18 @@ export function NotificationPromptProvider({ children }) {
 export default function NotificationPrompt() {
   const { hasSeenPrompt, markSeen } = useContext(NotificationPromptContext);
   // Recording the first display must not close the dialog that is already open.
-  const [isOpen, setIsOpen] = useState(() => !hasSeenPrompt);
+  const [isOpen, setIsOpen] = useState(
+    () => !hasSeenPrompt && window.Notification?.permission !== "granted",
+  );
+
+  useEffect(() => {
+    if (window.Notification?.permission !== "granted") return;
+
+    markSeen();
+    registerFcmTokenOnce().catch((error) => {
+      console.error("푸시 알림 등록 실패:", error.message);
+    });
+  }, [markSeen]);
 
   return isOpen ? (
     <NotificationDialog onShown={markSeen} onDismiss={() => setIsOpen(false)} />
@@ -125,13 +135,7 @@ function NotificationDialog({ onShown, onDismiss }) {
         return;
       }
 
-      const fcmToken = await getFcmToken();
-      if (!isCurrentSession()) return;
-
-      // Read the latest access token in case it was refreshed during permission.
-      await sendFcmToken(fcmToken, localStorage.getItem("accessToken"), {
-        signal: controller.signal,
-      });
+      await registerFcmTokenOnce({ signal: controller.signal });
       if (isCurrentSession()) onDismiss();
     } catch (error) {
       if (isCurrentSession()) {
@@ -159,7 +163,7 @@ function NotificationDialog({ onShown, onDismiss }) {
     >
       <h2 id="notification-prompt-title">알림을 받아보시겠어요?</h2>
       <p id="notification-prompt-description">
-        반려동물의 케어 소식과 복약 알림을 받아보세요.
+        댓글 언급과 반려동물의 이상 징후를 알림으로 받아보세요.
       </p>
       {errorMessage && (
         <p className="notification-prompt-error" role="alert">

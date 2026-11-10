@@ -7,7 +7,6 @@
   flex-direction: column;
   align-items: center;
   box-sizing: border-box;
-  padding: 0 8px;
   font-family: "Pretendard", sans-serif;
   overflow: hidden;
 }
@@ -15,7 +14,7 @@
 .alarmNotification-top {
   position: relative;
   width: 100%;
-  height: 56px;
+  flex: 0 0 56px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -26,8 +25,8 @@
   left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   border: 0;
   background: transparent;
   padding: 0;
@@ -35,6 +34,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  border-radius: 50%;
 }
 
 .alarmNotification-back-button img {
@@ -43,19 +43,176 @@
   object-fit: contain;
 }
 
-.alarmNotification-top span {
+.alarmNotification-top h1 {
+  margin: 0;
   color: var(--common-black);
   font-size: 14px;
   font-weight: 700;
 }
 
-.alarmNotification-empty {
+.alarmNotification-back-button:focus-visible,
+.alarmNotification-refresh-button:focus-visible,
+.alarmNotification-action-button:focus-visible,
+.alarmNotification-content:focus-visible {
+  outline: 2px solid var(--secondary-600);
+  outline-offset: -2px;
+}
+
+.alarmNotification-refresh-button {
+  position: absolute;
+  right: 20px;
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--secondary-600);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.alarmNotification-refresh-button:disabled {
+  color: var(--gray-warm-400);
+  cursor: default;
+}
+
+.alarmNotification-content {
   flex: 1;
+  min-height: 0;
+  width: 100%;
+  padding: 12px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+
+.alarmNotification-group + .alarmNotification-group {
+  margin-top: 24px;
+}
+
+.alarmNotification-content h2 {
+  margin: 0 0 10px;
+  color: var(--gray-warm-500);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.alarmNotification-list {
   display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.alarmNotification-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  min-height: 104px;
+  padding: 16px;
+  box-sizing: border-box;
+  border-radius: 24px;
+  background-color: var(--common-white);
+}
+
+.alarmNotification-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 26px;
+}
+
+.alarmNotification-card-content {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+}
+
+.alarmNotification-card h3 {
+  margin: 0 0 6px;
+  color: var(--gray-warm-800);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+}
+
+.alarmNotification-card p,
+.alarmNotification-time {
+  color: var(--gray-warm-500);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.alarmNotification-card p {
+  margin: 0 0 4px;
+  white-space: pre-line;
+}
+
+.alarmNotification-time {
+  display: block;
+}
+
+.alarmNotification-photo {
+  display: block;
+  width: 100%;
+  max-height: 220px;
+  margin-top: 12px;
+  border-radius: 12px;
+  background: var(--background);
+  object-fit: contain;
+}
+
+.alarmNotification-card .alarmNotification-image-error {
+  margin: 12px 0 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--background);
+  color: var(--gray-warm-600);
+  font-size: 13px;
+}
+
+.alarmNotification-state {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: var(--gray-neutral-400);
+  gap: 12px;
+  padding: 20px 0 0;
+  box-sizing: border-box;
+  color: var(--gray-warm-600);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 400;
+  line-height: 1.5;
   text-align: center;
+}
+
+.alarmNotification-state:empty {
+  display: none;
+}
+
+.alarmNotification-state-full {
+  min-height: 100%;
+  padding-top: 0;
+}
+
+.alarmNotification-state p {
+  margin: 0;
+}
+
+.alarmNotification-action-button {
+  min-height: 44px;
+  padding: 10px 20px;
+  border: 1px solid var(--gray-warm-200);
+  border-radius: 12px;
+  background: var(--common-white);
+  color: var(--secondary-600);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
 }

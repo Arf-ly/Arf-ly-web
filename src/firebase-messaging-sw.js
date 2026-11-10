@@ -8,7 +8,7 @@ onBackgroundMessage(messaging, (payload) => {
   if (payload.notification) return;
 
   const title = payload.data?.title?.trim();
-  const body = payload.data?.body?.trim();
+  const body = (payload.data?.body || payload.data?.content)?.trim();
   if (!title && !body) return;
 
   return self.registration.showNotification(title || "Arfly", {

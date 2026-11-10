@@ -1,9 +1,13 @@
 import { getMessaging, getToken, isSupported } from "firebase/messaging";
 import messagingWorkerUrl from "../firebase-messaging-sw.js?worker&url";
 import { app, firebaseConfig } from "./firebase.js";
+import { sendFcmToken } from "../pages/mypage/NotificationApi.js";
 
 const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY?.trim();
 const WORKER_ACTIVATION_TIMEOUT_MS = 15000;
+const REGISTRATION_KEY = "arfly:fcm-registration";
+const pendingRegistrations = new Map();
+const completedSessions = new Set();
 
 export function validatePushConfiguration() {
   const requiredValues = {
@@ -118,4 +122,68 @@ export async function getFcmToken() {
   }
 
   return token;
+}
+
+// Prompt history and successful server registration are independent. An old
+// "prompt seen" flag must never prevent a permitted browser from registering.
+export function registerFcmTokenOnce({ signal } = {}) {
+  const accessToken = localStorage.getItem("accessToken");
+  const session = localStorage.getItem("refreshToken") || accessToken;
+  if (!accessToken) return Promise.reject(new Error("로그인이 필요합니다."));
+  if (completedSessions.has(session)) return Promise.resolve();
+  if (pendingRegistrations.has(session)) return pendingRegistrations.get(session);
+
+  const isCurrentSession = () =>
+    Boolean(localStorage.getItem("accessToken")) &&
+    (localStorage.getItem("refreshToken") || localStorage.getItem("accessToken")) ===
+      session;
+
+  const registration = (async () => {
+    signal?.throwIfAborted();
+    const token = await getFcmToken();
+    signal?.throwIfAborted();
+    if (!isCurrentSession()) throw new Error("로그인 정보가 변경되었습니다.");
+
+    // Store a fingerprint, not authentication credentials or the FCM token.
+    const digest = await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(JSON.stringify([session, token])),
+    );
+    const fingerprint = Array.from(new Uint8Array(digest), (byte) =>
+      byte.toString(16).padStart(2, "0"),
+    ).join("");
+    let registeredFingerprint = null;
+    try {
+      registeredFingerprint = sessionStorage.getItem(REGISTRATION_KEY);
+    } catch {
+      // In-memory deduplication still works if session storage is unavailable.
+    }
+
+    signal?.throwIfAborted();
+    if (!isCurrentSession()) throw new Error("로그인 정보가 변경되었습니다.");
+    if (registeredFingerprint !== fingerprint) {
+      try {
+        await sendFcmToken(token, localStorage.getItem("accessToken"), { signal });
+      } catch (error) {
+        if (signal?.aborted) throw error;
+        throw new Error(
+          error.response?.status === 401
+            ? "로그인이 만료되었습니다. 다시 로그인한 뒤 알림을 설정해주세요."
+            : "푸시 알림 등록에 실패했습니다. 다시 시도해주세요.",
+        );
+      }
+
+      if (!isCurrentSession() || signal?.aborted) return;
+      try {
+        sessionStorage.setItem(REGISTRATION_KEY, fingerprint);
+      } catch {
+        // Server registration succeeded; keep this visit registered in memory.
+      }
+    }
+
+    completedSessions.add(session);
+  })().finally(() => pendingRegistrations.delete(session));
+
+  pendingRegistrations.set(session, registration);
+  return registration;
 }
